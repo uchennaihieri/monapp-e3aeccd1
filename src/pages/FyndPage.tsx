@@ -15,30 +15,32 @@ function useFade(ref: React.RefObject<HTMLElement | HTMLDivElement | null>) {
   }, [])
 }
 
-function PhoneForm({ btnLabel, btnClass = 'btn-dark', onChange }: { btnLabel: string; btnClass?: string; onChange?: () => void }) {
+function PhoneForm({ btnLabel, btnClass = 'btn-dark' }: { btnLabel: string; btnClass?: string }) {
   const [phone, setPhone] = useState('')
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
+  const navigate = useNavigate()
   const base = import.meta.env.VITE_BASE_URL
   const submit = async () => {
     if (phone.trim().length < 10) return
-    try { setLoading(true); await axios.post(`${base}/broker/brokerForm`, { FULL_NAME:'fynd prospect', PHONE_NUMBER:phone, EMAIL_ADDRESS:'', STATE:'' }); setSuccess(true); setPhone(''); onChange?.() }
-    catch { /* silent */ } finally { setLoading(false) }
+    setLoading(true)
+    try {
+      // Submit lead info then navigate to OTP
+      await axios.post(`${base}/broker/brokerForm`, { FULL_NAME:'fynd prospect', PHONE_NUMBER:phone, EMAIL_ADDRESS:'', STATE:'' })
+    } catch { /* continue to OTP regardless */ }
+    setLoading(false)
+    navigate('/fynd/verify', { state: { phone } })
   }
   return (
-    <>
-      <div className="flex flex-col gap-3 max-w-sm">
-        <div className="phone-row phone-row-amber">
-          <div className="flag-prefix"><img src="/icons/naija-flag.svg" alt="NG" style={{ width:18, height:18 }} />+234</div>
-          <input type="number" value={phone} maxLength={11} onChange={e => setPhone(e.target.value)} placeholder="Your phone number" />
-        </div>
-        <button onClick={submit} disabled={loading} className={`btn ${btnClass} btn-full text-[1rem]`}>
-          {loading ? 'Sending…' : btnLabel}
-        </button>
-        <p className="text-[0.7rem] text-white/35 text-center">Refundable ₦25,000 balance · Not a fee</p>
+    <div className="flex flex-col gap-3 max-w-sm">
+      <div className="phone-row phone-row-amber">
+        <div className="flag-prefix"><img src="/icons/naija-flag.svg" alt="NG" style={{ width:18, height:18 }} />+234</div>
+        <input type="number" value={phone} maxLength={11} onChange={e => setPhone(e.target.value)} placeholder="Your phone number" />
       </div>
-      <SuccessModal isOpen={success} onClose={() => setSuccess(false)} type="fynd" />
-    </>
+      <button onClick={submit} disabled={loading} className={`btn ${btnClass} btn-full text-[1rem]`}>
+        {loading ? 'Sending…' : btnLabel}
+      </button>
+      <p className="text-[0.7rem] text-white/35 text-center">Refundable ₦25,000 balance · Not a fee</p>
+    </div>
   )
 }
 
