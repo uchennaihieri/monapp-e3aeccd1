@@ -1,73 +1,74 @@
-# Welcome to your Lovable project
+# Monapp — Vite + React + TypeScript + Tailwind CSS
 
-## Project info
+Landing site for Monapp (vehicle credit card) and Monapp Fynd (mechanic-finding & car-recovery platform).
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Stack
 
-## How can I edit this code?
+- **Vite** + **React 18** + **TypeScript**
+- **Tailwind CSS** — all styling, no Chakra UI
+- **Framer Motion** — (peer dep, not used in final; animations are CSS)
+- **React Router DOM** — client-side routing
+- **Axios** — phone form submission
 
-There are several ways of editing your application.
+## Fonts
 
-**Use Lovable**
+- **Syne** — headings (`font-display`)
+- **Instrument Serif** — italic body / pullquotes
+- **Space Mono** — UI labels, buttons, body
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+All loaded from Google Fonts in `index.css`.
 
-Changes made via Lovable will be committed automatically to this repo.
+## Getting Started
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+npm install
+cp .env.example .env   # set VITE_BASE_URL
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Routes
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+| Path       | Page                                        |
+|------------|---------------------------------------------|
+| `/`        | Home — hero, credit card, Fynd preview, CTA |
+| `/fynd`    | Monapp Fynd full landing page               |
+| `/privacy` | Privacy Policy                              |
+| `/terms`   | Terms of Use                                |
 
-**Use GitHub Codespaces**
+## Design System
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+| Token          | Value                       |
+|----------------|-----------------------------|
+| `--green`      | `#1d7a3c` (primary green)   |
+| `--green-bright` | `#2ecc5f` (accent green) |
+| `--amber`      | `#e8a020` (Fynd amber)      |
+| `--black`      | `#0a0a0a` (page background) |
+| `--off-white`  | `#f5f2ec` (primary text)    |
 
-## What technologies are used for this project?
+## File Structure
 
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+```
+src/
+  App.tsx
+  main.tsx
+  vite-env.d.ts
+  index.css                    # global styles + CSS animations
+  components/
+    Navbar.tsx                 # fixed glassmorphic nav, mobile-responsive
+    Footer.tsx                 # minimal footer with legal links
+    SuccessModal.tsx           # phone form success overlay
+    sections/
+      Hero.tsx                 # full-viewport hero + phone input
+      Ticker.tsx               # scrolling green ticker strip
+      CreditProduct.tsx        # credit card product + 3D card visual
+      CreditFeatures.tsx       # 6-feature grid (credit card)
+      Divider.tsx              # section separator
+      FyndProduct.tsx          # Fynd product + live UI mockup
+      HowItWorks.tsx           # tabbed 4-step process (credit / fynd)
+      CtaSection.tsx           # green dual CTA banner
+  pages/
+    HomePage.tsx               # assembles all home sections
+    FyndPage.tsx               # full Fynd landing page
+    PrivacyPage.tsx            # privacy policy
+    TermsPage.tsx              # terms of use
+```
