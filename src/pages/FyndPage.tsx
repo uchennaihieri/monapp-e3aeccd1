@@ -272,7 +272,7 @@ export default function FyndPage() {
           <p className="text-black/60 text-base mb-8 leading-relaxed">
             Activate Fynd with a refundable ₦25,000 balance. Free mechanic access. Free car recovery.
           </p>
-          <PhoneForm btnLabel="Protect My Vehicle Now →" btnClass="btn-dark" />
+          <EmailForm btnLabel="Protect My Vehicle Now →" btnClass="btn-dark" />
           <div className="mt-8 pt-6 flex justify-center" style={{ borderTop:'1px solid rgba(0,0,0,0.1)' }}>
             <Link to="/" className="text-sm text-black/40 hover:text-black/70 no-underline transition-colors">
               ← Also get the Monapp Credit Card for vehicle repairs
