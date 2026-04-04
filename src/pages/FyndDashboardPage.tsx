@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { ShieldCheck, Wrench, AlertTriangle, Plus, ArrowDownToLine, Clock, CalendarDays, Banknote, ChevronRight, PlusCircle } from 'lucide-react'
-import { ModalOverlay, CloseBtn, AmberBtn } from '@/components/fynd/ModalOverlay'
-import AddVehicleModal from '@/components/fynd/AddVehicleModal'
-import VehicleDetailModal, { STATUS_COLORS, type Vehicle, type VehicleStatus } from '@/components/fynd/VehicleDetailModal'
+import { ModalOverlay, CloseBtn, AmberBtn } from '../components/fynd/ModalOverlay'
+import AddVehicleModal from '../components/fynd/AddVehicleModal'
+import VehicleDetailModal, { STATUS_COLORS, type Vehicle, type VehicleStatus } from '../components/fynd/VehicleDetailModal'
 
 const TODAY = new Date()
 const MATURITY = new Date(TODAY.getFullYear() + 1, TODAY.getMonth(), TODAY.getDate())
