@@ -84,7 +84,7 @@ export default function FyndPage() {
             <p className="text-white/55 text-lg mb-8 leading-relaxed" style={{ maxWidth:'44ch' }}>
               Monapp Fynd connects you to nearby mechanics instantly — and a network that helps track your vehicle if it goes missing.
             </p>
-            <PhoneForm btnLabel="Protect My Vehicle →" btnClass="btn-amber" />
+            <EmailForm btnLabel="Protect My Vehicle →" btnClass="btn-amber" />
             <div className="mt-6">
               <Link to="/" className="text-sm text-white/35 hover:text-white/60 no-underline transition-colors">
                 ← Also get the Monapp Credit Card
