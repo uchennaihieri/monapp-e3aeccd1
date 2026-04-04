@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import axios from 'axios'
+import { supabase } from '@/util/supabase'
 
 const STATES_NG = [
   'Abia','Adamawa','Akwa Ibom','Anambra','Bauchi','Bayelsa','Benue','Borno','Cross River',
@@ -20,30 +21,29 @@ const PHOTO_LABELS: { key: PhotoKey; label: string; icon: string }[] = [
 export default function FyndRegisterPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const phone = (location.state as any)?.phone || ''
+  
 
   const [step, setStep] = useState(1)
-  const totalSteps = 4
+  const totalSteps = 3
 
   // Step 1: Personal
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
-  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [country, setCountry] = useState('Nigeria')
   const [state, setState] = useState('')
 
   // Step 2: Vehicle
-  const [vehicleName, setVehicleName] = useState('')
-  const [vehicleYear, setVehicleYear] = useState('')
-  const [vin, setVin] = useState('')
-  const [plateNumber, setPlateNumber] = useState('')
+  const [address, setAddress] = useState('')
+  const [gender, setGender] = useState('Male')
+ const [dateOfBirth, setDateOfBirth] = useState('')
+ 
 
   // Step 3: Photos
   const [photos, setPhotos] = useState<Record<PhotoKey, File | null>>({ front: null, side: null, back: null, inside: null })
   const fileInputs = useRef<Record<PhotoKey, HTMLInputElement | null>>({ front: null, side: null, back: null, inside: null })
 
   // Step 4: Verification
-  const [bvn, setBvn] = useState('')
   const [nin, setNin] = useState('')
 
   const [loading, setLoading] = useState(false)
@@ -54,10 +54,10 @@ export default function FyndRegisterPage() {
 
   const canProceed = () => {
     switch (step) {
-      case 1: return firstName.trim() && lastName.trim() && email.trim() && state
-      case 2: return vehicleName.trim() && vehicleYear.trim() && plateNumber.trim()
-      case 3: return photos.front && photos.side && photos.back && photos.inside
-      case 4: return bvn.trim().length >= 11 && nin.trim().length >= 11
+      case 1: return firstName.trim() && lastName.trim() && phone.trim() && state
+      case 2: return address.trim() && gender && dateOfBirth
+      // case 3: return photos.front && photos.side && photos.back && photos.inside
+      case 3: return  nin.trim().length >= 11
       default: return false
     }
   }
@@ -65,14 +65,38 @@ export default function FyndRegisterPage() {
   const next = () => { if (step < totalSteps) setStep(s => s + 1) }
   const prev = () => { if (step > 1) setStep(s => s - 1); else navigate('/fynd') }
 
-  const submit = async () => {
-    setLoading(true)
-    try {
-      // TODO: Replace with real registration endpoint
-      await new Promise(r => setTimeout(r, 1500))
-      navigate('/fynd/dashboard')
-    } catch { /* silent */ } finally { setLoading(false) }
+ const submit = async () => {
+  setLoading(true)
+
+  try {
+    const { error } = await supabase.from('person').insert([
+      {
+        first_name: firstName,
+        last_name: lastName,
+        phoneNumber: phone,
+        country: country,
+        state: state,
+        address: address,
+        gender: gender,
+        date_of_birth: dateOfBirth,
+        nin: nin,
+      }
+    ])
+
+    if (error) {
+      console.error(error)
+      alert('Something went wrong')
+      return
+    }
+
+    navigate('/fynd/dashboard')
+
+  } catch (err) {
+    console.error(err)
+  } finally {
+    setLoading(false)
   }
+}
 
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '0.85rem 1rem', fontSize: '0.9rem',
@@ -125,8 +149,8 @@ export default function FyndRegisterPage() {
                   </div>
                 </div>
                 <div>
-                  <label style={labelStyle}>Email Address</label>
-                  <input style={inputStyle} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="john@example.com" />
+                  <label style={labelStyle}>Phone Number</label>
+                  <input style={inputStyle} type="text" value={phone} onChange={e => setPhone(e.target.value)} placeholder="07012345678" />
                 </div>
                 <div>
                   <label style={labelStyle}>Country</label>
@@ -147,30 +171,35 @@ export default function FyndRegisterPage() {
 
           {step === 2 && (
             <>
-              <h2 className="mb-1" style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.35rem', color: '#0a0a0a' }}>Vehicle Details</h2>
-              <p className="text-sm mb-6" style={{ color: '#888' }}>Tell us about your vehicle</p>
+              <h2 className="mb-1" style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.35rem', color: '#0a0a0a' }}>More Details</h2>
+              <p className="text-sm mb-6" style={{ color: '#888' }}>Tell us more about you</p>
               <div className="space-y-4">
                 <div>
-                  <label style={labelStyle}>Vehicle Name / Make</label>
-                  <input style={inputStyle} value={vehicleName} onChange={e => setVehicleName(e.target.value)} placeholder="Toyota Camry" />
+                  <label style={labelStyle}>Address</label>
+                  <input style={inputStyle} value={address} onChange={e => setAddress(e.target.value)} placeholder="Home address" />
                 </div>
-                <div>
-                  <label style={labelStyle}>Year</label>
-                  <input style={inputStyle} type="number" value={vehicleYear} onChange={e => setVehicleYear(e.target.value)} placeholder="2020" />
+                 <div>
+                  <label style={labelStyle}>Gender</label>
+                  <select style={{ ...inputStyle, appearance: 'none' as any }} value={gender} onChange={e => setGender(e.target.value)}>
+                    <option>Male</option>
+                    <option>Female</option>
+                  </select>
                 </div>
-                <div>
-                  <label style={labelStyle}>VIN (optional)</label>
-                  <input style={inputStyle} value={vin} onChange={e => setVin(e.target.value)} placeholder="Vehicle Identification Number" />
-                </div>
-                <div>
-                  <label style={labelStyle}>Plate Number</label>
-                  <input style={inputStyle} value={plateNumber} onChange={e => setPlateNumber(e.target.value)} placeholder="ABC-123-XY" />
-                </div>
+             <div>
+  <label style={labelStyle}>Date of Birth</label>
+  <input
+    style={inputStyle}
+    type="date"
+    value={dateOfBirth}
+    onChange={e => setDateOfBirth(e.target.value)}
+  />
+</div>
+    
               </div>
             </>
           )}
 
-          {step === 3 && (
+          {/* {step === 3 && (
             <>
               <h2 className="mb-1" style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.35rem', color: '#0a0a0a' }}>Vehicle Photos</h2>
               <p className="text-sm mb-6" style={{ color: '#888' }}>Upload clear photos of your vehicle</p>
@@ -211,18 +240,18 @@ export default function FyndRegisterPage() {
                 ))}
               </div>
             </>
-          )}
+          )} */}
 
-          {step === 4 && (
+          {step === 3 && (
             <>
               <h2 className="mb-1" style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.35rem', color: '#0a0a0a' }}>Identity Verification</h2>
               <p className="text-sm mb-6" style={{ color: '#888' }}>Required for vehicle protection</p>
               <div className="space-y-4">
-                <div>
+                {/* <div>
                   <label style={labelStyle}>BVN (Bank Verification Number)</label>
                   <input style={inputStyle} type="text" inputMode="numeric" maxLength={11} value={bvn} onChange={e => setBvn(e.target.value.replace(/\D/g, ''))} placeholder="22XXXXXXXXX" />
                   <p className="text-xs mt-1.5" style={{ color: '#bbb' }}>11 digits · Kept secure and encrypted</p>
-                </div>
+                </div> */}
                 <div>
                   <label style={labelStyle}>NIN (National Identification Number)</label>
                   <input style={inputStyle} type="text" inputMode="numeric" maxLength={11} value={nin} onChange={e => setNin(e.target.value.replace(/\D/g, ''))} placeholder="XXXXXXXXXXX" />
@@ -232,7 +261,7 @@ export default function FyndRegisterPage() {
 
               <div className="mt-6 p-4 rounded-xl" style={{ background: 'rgba(232,160,32,0.06)', border: '1px solid rgba(232,160,32,0.15)' }}>
                 <p className="text-xs leading-relaxed" style={{ color: '#888' }}>
-                  🔒 Your BVN and NIN are encrypted and only used for identity verification. We never share your data.
+                  🔒 Your NIN is only used for identity verification. We never share your data.
                 </p>
               </div>
             </>

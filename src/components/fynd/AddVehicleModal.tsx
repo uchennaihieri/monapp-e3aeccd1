@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { Camera, X } from 'lucide-react'
 import { ModalOverlay, CloseBtn, AmberBtn } from './ModalOverlay'
+import { supabase } from '@/util/supabase'
 
 interface VehicleForm {
   name: string
@@ -43,6 +44,81 @@ export default function AddVehicleModal({ onClose, onAdd }: Props) {
   }
 
   const canSubmit = form.name.trim() && form.year.trim() && form.plate.trim()
+
+
+  const handleSubmit =  async () => {
+    if (!canSubmit) return
+
+    try {
+      // 1. Get logged-in user
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (!user) {
+        alert('You must be logged in')
+        return
+      }
+
+      // 2. Upload photos (if any)
+      const uploadedPhotos: Record<string, string | null> = {}
+
+      for (const key of Object.keys(form.photos)) {
+        const photo = form.photos[key as keyof typeof form.photos]
+
+        if (photo) {
+          const fileName = `${user.id}/${Date.now()}-${key}.png`
+
+          const res = await fetch(photo)
+          const blob = await res.blob()
+
+          const { error: uploadError } = await supabase.storage
+            .from('vehicle-photos')
+            .upload(fileName, blob)
+
+          if (uploadError) {
+            console.error(uploadError)
+            continue
+          }
+
+          const { data } = supabase.storage
+            .from('vehicle-photos')
+            .getPublicUrl(fileName)
+
+          uploadedPhotos[key] = data.publicUrl
+        } else {
+          uploadedPhotos[key] = null
+        }
+      }
+
+      // 3. Insert into DB
+      const { error } = await supabase.from('vehicle').insert([
+        {
+          user_id: user.id,
+          name: form.name,
+          year: form.year,
+          vin: form.vin,
+          plate: form.plate,
+          location: form.location,
+          front_photo: uploadedPhotos.front,
+          side_photo: uploadedPhotos.side,
+          rear_photo: uploadedPhotos.rear,
+          interior_photo: uploadedPhotos.interior,
+          status: 'active'
+        }
+      ])
+
+      if (error) {
+        console.error(error)
+        alert('Failed to save vehicle')
+        return
+      }
+
+      onClose()
+
+    } catch (err) {
+      console.error(err)
+    }
+  }
+  
 
   return (
     <ModalOverlay onClose={onClose}>
@@ -94,7 +170,13 @@ export default function AddVehicleModal({ onClose, onAdd }: Props) {
         ))}
       </div>
 
-      <AmberBtn onClick={() => { if (canSubmit) onAdd(form) }}>Add Vehicle</AmberBtn>
+      {/* <AmberBtn onClick={() => { if (canSubmit) onAdd(form) }}>Add Vehicle</AmberBtn> */}
+<AmberBtn
+  onClick={handleSubmit}
+>
+  Add Vehicle
+</AmberBtn>
+
     </ModalOverlay>
   )
 }

@@ -5,6 +5,7 @@ import CardHero from '../components/illustrations/CardHero'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import SuccessModal from '../components/SuccessModal'
+import { supabase } from '@/util/supabase'
 
 function useFade(ref: React.RefObject<HTMLElement | HTMLDivElement | null>) {
   useEffect(() => {
@@ -24,10 +25,24 @@ function EmailForm({ btnLabel, btnClass = 'btn-dark' }: { btnLabel: string; btnC
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return
     setLoading(true)
     try {
-      await axios.post(`${base}/broker/brokerForm`, { FULL_NAME:'fynd prospect', PHONE_NUMBER:'', EMAIL_ADDRESS:email, STATE:'' })
-    } catch { /* continue to OTP regardless */ }
+     const { data, error } = await supabase.auth.signInWithOtp({
+     email: email,
+     options: {
+    shouldCreateUser: true,
+   },
+})
+
+ if (error) {
+    console.log(error)
+   }
+
+if (data){
     setLoading(false)
     navigate('/fynd/verify', { state: { email } })
+}
+
+    } catch { /* continue to OTP regardless */ }
+console.log('error')
   }
   return (
     <div className="flex flex-col gap-3 max-w-sm">

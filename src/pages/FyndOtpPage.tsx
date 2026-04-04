@@ -1,3 +1,4 @@
+import { supabase } from '@/util/supabase'
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 
@@ -51,8 +52,20 @@ export default function FyndOtpPage() {
     if (code.length < 6) { setError('Please enter the full 6-digit code'); return }
     setLoading(true)
     try {
-      await new Promise(r => setTimeout(r, 1200))
-      navigate('/fynd/register', { state: { email } })
+
+  const {
+  data: { session },
+  error,
+} = await supabase.auth.verifyOtp({
+  email: email,
+  token: code,
+  type: 'email',
+})
+  if (session){
+navigate('/fynd/register', { state: { email } })
+console.log(session)
+  }
+      
     } catch {
       setError('Invalid code. Please try again.')
     } finally {
