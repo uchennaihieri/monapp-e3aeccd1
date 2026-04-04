@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import axios from 'axios'
 
 export default function FyndOtpPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const phone = (location.state as any)?.phone || ''
+  const email = (location.state as any)?.email || ''
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -13,9 +12,9 @@ export default function FyndOtpPage() {
   const inputs = useRef<(HTMLInputElement | null)[]>([])
 
   useEffect(() => {
-    if (!phone) { navigate('/fynd'); return }
+    if (!email) { navigate('/fynd'); return }
     inputs.current[0]?.focus()
-  }, [phone, navigate])
+  }, [email, navigate])
 
   useEffect(() => {
     if (resendTimer <= 0) return
@@ -52,15 +51,8 @@ export default function FyndOtpPage() {
     if (code.length < 6) { setError('Please enter the full 6-digit code'); return }
     setLoading(true)
     try {
-      // TODO: Replace with real OTP verification endpoint
-      // const base = import.meta.env.VITE_BASE_URL
-      // const res = await axios.post(`${base}/broker/verifyOtp`, { phone, otp: code })
-      // if (res.data.isExisting) navigate('/fynd/dashboard')
-      // else navigate('/fynd/register', { state: { phone } })
-
-      // Simulated: treat as new customer for now
       await new Promise(r => setTimeout(r, 1200))
-      navigate('/fynd/register', { state: { phone } })
+      navigate('/fynd/register', { state: { email } })
     } catch {
       setError('Invalid code. Please try again.')
     } finally {
@@ -71,14 +63,10 @@ export default function FyndOtpPage() {
   const resend = async () => {
     if (resendTimer > 0) return
     setResendTimer(59)
-    try {
-      // TODO: call resend OTP endpoint
-    } catch { /* silent */ }
   }
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#fff' }}>
-      {/* Header */}
       <header className="flex items-center px-5 py-4 border-b" style={{ borderColor: '#eee' }}>
         <button onClick={() => navigate('/fynd')} className="text-sm font-semibold flex items-center gap-2 bg-transparent border-none cursor-pointer" style={{ color: '#0a0a0a', fontFamily: 'Syne, sans-serif' }}>
           ← Back
@@ -89,7 +77,6 @@ export default function FyndOtpPage() {
         <div style={{ width: 48 }} />
       </header>
 
-      {/* Content */}
       <div className="flex-1 flex flex-col items-center justify-center px-5 py-10">
         <div className="w-full max-w-sm text-center">
           <div className="w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center" style={{ background: 'rgba(232,160,32,0.1)' }}>
@@ -97,13 +84,12 @@ export default function FyndOtpPage() {
           </div>
 
           <h1 className="mb-2" style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.5rem', color: '#0a0a0a', letterSpacing: '-0.02em' }}>
-            Verify your number
+            Verify your email
           </h1>
           <p className="text-sm mb-8" style={{ color: '#666', lineHeight: 1.6 }}>
-            We sent a 6-digit code to <strong style={{ color: '#0a0a0a' }}>+234{phone}</strong>
+            We sent a 6-digit code to <strong style={{ color: '#0a0a0a' }}>{email}</strong>
           </p>
 
-          {/* OTP inputs */}
           <div className="flex gap-2.5 justify-center mb-4" onPaste={handlePaste}>
             {otp.map((digit, i) => (
               <input
@@ -128,7 +114,6 @@ export default function FyndOtpPage() {
 
           {error && <p className="text-xs mb-4" style={{ color: '#e74c3c' }}>{error}</p>}
 
-          {/* Verify button */}
           <button
             onClick={verify}
             disabled={loading || otp.join('').length < 6}
@@ -143,7 +128,6 @@ export default function FyndOtpPage() {
             {loading ? 'Verifying…' : 'Verify & Continue'}
           </button>
 
-          {/* Resend */}
           <p className="text-xs" style={{ color: '#999' }}>
             Didn't get the code?{' '}
             {resendTimer > 0 ? (
@@ -157,7 +141,6 @@ export default function FyndOtpPage() {
         </div>
       </div>
 
-      {/* Footer */}
       <div className="text-center py-5 px-5">
         <p className="text-xs" style={{ color: '#bbb' }}>
           Protected by <strong style={{ color: '#888' }}>Monapp Fynd</strong>
