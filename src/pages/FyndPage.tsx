@@ -15,27 +15,36 @@ function useFade(ref: React.RefObject<HTMLElement | HTMLDivElement | null>) {
   }, [])
 }
 
-function PhoneForm({ btnLabel, btnClass = 'btn-dark' }: { btnLabel: string; btnClass?: string }) {
-  const [phone, setPhone] = useState('')
+function EmailForm({ btnLabel, btnClass = 'btn-dark' }: { btnLabel: string; btnClass?: string }) {
+  const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const base = import.meta.env.VITE_BASE_URL
   const submit = async () => {
-    if (phone.trim().length < 10) return
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return
     setLoading(true)
     try {
-      // Submit lead info then navigate to OTP
-      await axios.post(`${base}/broker/brokerForm`, { FULL_NAME:'fynd prospect', PHONE_NUMBER:phone, EMAIL_ADDRESS:'', STATE:'' })
+      await axios.post(`${base}/broker/brokerForm`, { FULL_NAME:'fynd prospect', PHONE_NUMBER:'', EMAIL_ADDRESS:email, STATE:'' })
     } catch { /* continue to OTP regardless */ }
     setLoading(false)
-    navigate('/fynd/verify', { state: { phone } })
+    navigate('/fynd/verify', { state: { email } })
   }
   return (
     <div className="flex flex-col gap-3 max-w-sm">
-      <div className="phone-row phone-row-amber">
-        <div className="flag-prefix"><img src="/icons/naija-flag.svg" alt="NG" style={{ width:18, height:18 }} />+234</div>
-        <input type="number" value={phone} maxLength={11} onChange={e => setPhone(e.target.value)} placeholder="Your phone number" />
-      </div>
+      <input
+        type="email"
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+        placeholder="Your email address"
+        className="w-full px-4 py-3.5 rounded-xl text-[1rem] outline-none transition-all"
+        style={{
+          background: 'rgba(255,255,255,0.08)',
+          border: '1.5px solid rgba(255,255,255,0.12)',
+          color: '#fff',
+          fontFamily: 'Inter, sans-serif',
+        }}
+        onKeyDown={e => e.key === 'Enter' && submit()}
+      />
       <button onClick={submit} disabled={loading} className={`btn ${btnClass} btn-full text-[1rem]`}>
         {loading ? 'Sending…' : btnLabel}
       </button>
