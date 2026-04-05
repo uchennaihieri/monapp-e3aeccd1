@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import SuccessModal from '../components/SuccessModal'
 import { supabase } from '@/util/supabase'
+import { Helmet } from 'react-helmet-async'
 
 function useFade(ref: React.RefObject<HTMLElement | HTMLDivElement | null>) {
   useEffect(() => {
@@ -46,6 +47,10 @@ console.log('error')
   }
   return (
     <div className="flex flex-col gap-3 max-w-sm">
+      <Helmet>
+  <title>Monapp Fynd — Find Mechanics Fast & Recover Missing Vehicles</title>
+  <meta name="description" content="Monapp Fynd connects Nigerian drivers to nearby verified mechanics instantly. Report a missing vehicle and your recovery network activates in seconds. ₦25,000 refundable balance." />
+</Helmet>
       <input
         type="email"
         value={email}
