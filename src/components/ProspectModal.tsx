@@ -119,8 +119,8 @@ export default function ProspectModal({ isOpen, phone, onClose, onSuccess }: Pro
       )}
     </AnimatePresence>
   )
-}
-  const [firstName, setFirstName] = useState('')
+
+
   const [lastName, setLastName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
