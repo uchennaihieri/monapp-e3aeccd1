@@ -1,23 +1,18 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import axios from 'axios'
 import Navbar from '../Navbar'
 import SuccessModal from '../SuccessModal'
+import ProspectModal from '../ProspectModal'
 import CardHero from '../illustrations/CardHero'
 
 export default function Hero() {
   const [phone, setPhone] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [showModal, setShowModal] = useState(false)
   const [success, setSuccess] = useState(false)
-  const base = import.meta.env.VITE_BASE_URL
 
-  const submit = async () => {
+  const handleClick = () => {
     if (phone.trim().length < 10) return
-    try {
-      setLoading(true)
-      await axios.post(`${base}/broker/brokerForm`, { FULL_NAME: 'monapp prospect', PHONE_NUMBER: phone, EMAIL_ADDRESS: '', STATE: '' })
-      setSuccess(true); setPhone('')
-    } catch { /* silent */ } finally { setLoading(false) }
+    setShowModal(true)
   }
 
   return (
@@ -51,8 +46,8 @@ export default function Hero() {
                 onChange={e => setPhone(e.target.value)}
                 placeholder="Your phone number" />
             </div>
-            <button onClick={submit} disabled={loading} className="btn btn-green btn-full text-[1rem]">
-              {loading ? 'Sending…' : 'Get My Monapp Card →'}
+            <button onClick={handleClick} className="btn btn-green btn-full text-[1rem]">
+              Get My Monapp Card →
             </button>
             <p className="text-[0.7rem] text-white/30 text-center">No commitment. We'll call you.</p>
           </div>
@@ -69,6 +64,7 @@ export default function Hero() {
         </div> */}
       </div>
 
+      <ProspectModal isOpen={showModal} phone={phone} onClose={() => setShowModal(false)} onSuccess={() => { setShowModal(false); setPhone(''); setSuccess(true) }} />
       <SuccessModal isOpen={success} onClose={() => setSuccess(false)} />
     </section>
   )
