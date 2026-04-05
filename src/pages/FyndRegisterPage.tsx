@@ -69,8 +69,16 @@ export default function FyndRegisterPage() {
   setLoading(true)
 
   try {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      alert('Session expired. Please log in again.')
+      navigate('/fynd')
+      return
+    }
+
     const { error } = await supabase.from('person').insert([
       {
+        user_id: session.user.id,
         first_name: firstName,
         last_name: lastName,
         phoneNumber: phone,
@@ -89,7 +97,7 @@ export default function FyndRegisterPage() {
       return
     }
 
-    navigate('/fynd/dashboard')
+    navigate('/fynd/dashboard', { replace: true })
 
   } catch (err) {
     console.error(err)
