@@ -1,15 +1,13 @@
 import { useState } from 'react'
-import axios from 'axios'
 import SuccessModal from '../SuccessModal'
+import ProspectModal from '../ProspectModal'
 export default function FinalCTA() {
   const [phone, setPhone] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [showModal, setShowModal] = useState(false)
   const [success, setSuccess] = useState(false)
-  const base = import.meta.env.VITE_BASE_URL
-  const submit = async () => {
+  const handleClick = () => {
     if (phone.trim().length < 10) return
-    try { setLoading(true); await axios.post(`${base}/broker/brokerForm`, { FULL_NAME:'monapp prospect', PHONE_NUMBER:phone, EMAIL_ADDRESS:'', STATE:'' }); setSuccess(true); setPhone('') }
-    catch { /* silent */ } finally { setLoading(false) }
+    setShowModal(true)
   }
   return (
     <section className="sec relative overflow-hidden text-center" style={{ background:'var(--green)' }}>
