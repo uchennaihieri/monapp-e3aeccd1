@@ -25,7 +25,7 @@ export default function ProspectModal({ isOpen, phone, onClose, onSuccess }: Pro
     setLoading(true)
     try {
       const { error: dbError } = await supabase.from('prospects').insert({
-        phone_number: phone,
+        phoneNumber: phone,
         first_name: firstName.trim(),
         last_name: lastName.trim(),
         converted: false,
