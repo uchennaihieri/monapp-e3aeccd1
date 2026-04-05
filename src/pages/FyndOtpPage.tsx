@@ -71,9 +71,11 @@ export default function FyndOtpPage() {
         // Check if user exists in person table
         const { data: person } = await supabase
           .from('person')
-          .select('id')
+          .select('user_id')
           .eq('user_id', session.user.id)
           .maybeSingle()
+
+console.log(person)
 
         if (person) {
           navigate('/fynd/dashboard', { replace: true })
