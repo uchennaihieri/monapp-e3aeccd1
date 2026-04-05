@@ -1,9 +1,18 @@
-import { useState } from 'react'
-import { AnimatePresence } from 'framer-motion'
-import { ShieldCheck, Wrench, AlertTriangle, Plus, ArrowDownToLine, Clock, CalendarDays, Banknote, ChevronRight, PlusCircle } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { AnimatePresence, motion } from 'framer-motion'
+import {
+  ShieldCheck, Wrench, AlertTriangle, Plus, ArrowDownToLine,
+  Clock, CalendarDays, Banknote, ChevronRight, PlusCircle, LogOut, User
+} from 'lucide-react'
+import { supabase } from '@/util/supabase'
 import { ModalOverlay, CloseBtn, AmberBtn } from '../components/fynd/ModalOverlay'
 import AddVehicleModal from '../components/fynd/AddVehicleModal'
-import VehicleDetailModal, { STATUS_COLORS, type Vehicle, type VehicleStatus } from '../components/fynd/VehicleDetailModal'
+import VehicleDetailModal, {
+  STATUS_COLORS,
+  type Vehicle,
+  type VehicleStatus,
+} from '../components/fynd/VehicleDetailModal'
 
 const TODAY = new Date()
 const MATURITY = new Date(TODAY.getFullYear() + 1, TODAY.getMonth(), TODAY.getDate())
@@ -14,6 +23,7 @@ const INITIAL_VEHICLES: Vehicle[] = [
 ]
 
 export default function FyndDashboardPage() {
+  const navigate = useNavigate()
   const [balance, setBalance] = useState(0)
   const [fyndActive, setFyndActive] = useState(false)
   const [autoRenew, setAutoRenew] = useState(true)
@@ -23,6 +33,57 @@ export default function FyndDashboardPage() {
   const [showVehicleDetail, setShowVehicleDetail] = useState<Vehicle | null>(null)
   const [showAddVehicle, setShowAddVehicle] = useState(false)
   const [vehicles, setVehicles] = useState<Vehicle[]>(INITIAL_VEHICLES)
+
+    const [firstName, setFirstName]   = useState('')
+  const [lastName, setLastName]     = useState('')
+  const [profileReady, setProfileReady] = useState(false)
+
+    const [showAccountModal, setShowAccountModal] = useState(false)
+  const [loggingOut, setLoggingOut]             = useState(false)
+
+
+useEffect(() => {
+    const load = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) { navigate('/fynd', { replace: true }); return }
+
+      // person table: user_id PK, first_name, last_name
+      const { data: person } = await supabase
+        .from('person')
+        .select('first_name, last_name')
+        .eq('user_id', session.user.id)
+        .maybeSingle()
+
+      if (person) {
+        setFirstName(person.first_name ?? '')
+        setLastName(person.last_name ?? '')
+      } else {
+        // Not yet registered — fall back to email prefix
+        const prefix = session.user.email?.split('@')[0] ?? ''
+        setFirstName(prefix)
+      }
+      setProfileReady(true)
+    }
+    load()
+  }, [navigate])
+
+
+  
+  // Initials: first letter of first name + first letter of last name
+  const initials = [firstName, lastName]
+    .map(n => n.trim().charAt(0).toUpperCase())
+    .filter(Boolean)
+    .join('') || '?'
+
+  const displayName = [firstName, lastName].filter(Boolean).join(' ') || 'Driver'
+
+  const handleLogout = async () => {
+    setLoggingOut(true)
+    await supabase.auth.signOut()
+    setLoggingOut(false)
+    setShowAccountModal(false)
+    navigate('/fynd', { replace: true })
+  }
 
   const canActivate = balance >= 25000
 
@@ -62,9 +123,27 @@ export default function FyndDashboardPage() {
       {/* Header */}
       <header className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
         <img src="/icons/monapp-logo-white.svg" alt="Monapp" className="h-[22px]" style={{ filter: 'invert(1)' }} />
-        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold bg-amber-50 text-amber-600" style={{ fontFamily: 'Syne, sans-serif' }}>
+        {/* <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold bg-amber-50 text-amber-600" style={{ fontFamily: 'Syne, sans-serif' }}>
           JD
-        </div>
+        </div> */}
+          <button
+          onClick={() => setShowAccountModal(true)}
+          className="w-9 h-9 rounded-full flex items-center justify-center font-bold border-none cursor-pointer transition-all hover:opacity-80 active:scale-95"
+          style={{
+            background: 'rgba(232,160,32,0.12)',
+            border: '1.5px solid rgba(232,160,32,0.32)',
+            color: '#b8760c',
+            fontFamily: 'Syne, sans-serif',
+            fontSize: profileReady ? '0.72rem' : '0',
+            letterSpacing: '0.02em',
+          }}
+          title="Account"
+        >
+          {profileReady
+            ? initials
+            : <User size={14} strokeWidth={2.5} style={{ color: '#b8760c' }} />
+          }
+        </button>
       </header>
 
       <div className="flex-1 overflow-y-auto px-5 py-5">
@@ -183,6 +262,63 @@ export default function FyndDashboardPage() {
       </div>
 
       {/* ── Modals ── */}
+
+      <AnimatePresence>
+        {showAccountModal && (
+          <ModalOverlay onClose={() => setShowAccountModal(false)}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="font-bold text-lg text-gray-900" style={{ fontFamily: 'Syne, sans-serif' }}>
+                Account
+              </h2>
+              <CloseBtn onClick={() => setShowAccountModal(false)} />
+            </div>
+
+            {/* Avatar + name */}
+            <div className="flex items-center gap-4 mb-6">
+              <div
+                className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-lg shrink-0"
+                style={{
+                  background: 'rgba(232,160,32,0.12)',
+                  border: '2px solid rgba(232,160,32,0.32)',
+                  color: '#b8760c',
+                  fontFamily: 'Syne, sans-serif',
+                }}
+              >
+                {initials}
+              </div>
+              <div>
+                <p className="font-bold text-gray-900 text-base leading-tight" style={{ fontFamily: 'Syne, sans-serif' }}>
+                  {displayName}
+                </p>
+                <p className="text-xs text-gray-400 mt-0.5">Monapp Fynd member</p>
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-gray-100 mb-5" />
+
+            {/* Logout button */}
+            <button
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl font-bold text-sm border-none cursor-pointer transition-all"
+              style={{
+                background: loggingOut ? '#f5f5f5' : '#fff5f5',
+                color: loggingOut ? '#aaa' : '#c0392b',
+                border: '1px solid',
+                borderColor: loggingOut ? '#e8e8e8' : 'rgba(192,57,43,0.2)',
+                fontFamily: 'Syne, sans-serif',
+              }}
+            >
+              <LogOut size={16} />
+              {loggingOut ? 'Signing out…' : 'Sign out'}
+            </button>
+          </ModalOverlay>
+        )}
+      </AnimatePresence>
+
+
+
       <AnimatePresence>
         {showDeposit && (
           <ModalOverlay onClose={() => setShowDeposit(false)}>
