@@ -53,18 +53,34 @@ export default function FyndOtpPage() {
     setLoading(true)
     try {
 
-  const {
-  data: { session },
-  error,
-} = await supabase.auth.verifyOtp({
-  email: email,
-  token: code,
-  type: 'email',
-})
-  if (session){
-navigate('/fynd/register', { state: { email } })
-console.log(session)
-  }
+      const {
+        data: { session },
+        error: verifyError,
+      } = await supabase.auth.verifyOtp({
+        email: email,
+        token: code,
+        type: 'email',
+      })
+
+      if (verifyError) {
+        setError(verifyError.message || 'Invalid code. Please try again.')
+        return
+      }
+
+      if (session) {
+        // Check if user exists in person table
+        const { data: person } = await supabase
+          .from('person')
+          .select('id')
+          .eq('user_id', session.user.id)
+          .maybeSingle()
+
+        if (person) {
+          navigate('/fynd/dashboard', { replace: true })
+        } else {
+          navigate('/fynd/register', { state: { email }, replace: true })
+        }
+      }
       
     } catch {
       setError('Invalid code. Please try again.')
