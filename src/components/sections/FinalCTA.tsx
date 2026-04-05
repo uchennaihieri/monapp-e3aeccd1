@@ -27,12 +27,13 @@ export default function FinalCTA() {
             </div>
             <input type="number" value={phone} maxLength={11} onChange={e => setPhone(e.target.value)} placeholder="Your phone number" />
           </div>
-          <button onClick={submit} disabled={loading} className="btn btn-dark btn-full text-[1rem]">
-            {loading ? 'Sending…' : 'Get My Monapp Card →'}
+          <button onClick={handleClick} className="btn btn-dark btn-full text-[1rem]">
+            Get My Monapp Card →
           </button>
           <p className="text-[0.7rem] text-white/45">No commitment. We'll call you to get started.</p>
         </div>
       </div>
+      <ProspectModal isOpen={showModal} phone={phone} onClose={() => setShowModal(false)} onSuccess={() => { setShowModal(false); setPhone(''); setSuccess(true) }} />
       <SuccessModal isOpen={success} onClose={() => setSuccess(false)} />
     </section>
   )

@@ -64,6 +64,7 @@ export default function Hero() {
         </div> */}
       </div>
 
+      <ProspectModal isOpen={showModal} phone={phone} onClose={() => setShowModal(false)} onSuccess={() => { setShowModal(false); setPhone(''); setSuccess(true) }} />
       <SuccessModal isOpen={success} onClose={() => setSuccess(false)} />
     </section>
   )
