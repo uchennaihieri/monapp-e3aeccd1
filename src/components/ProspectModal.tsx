@@ -95,12 +95,12 @@ export default function ProspectModal({ isOpen, phone, onClose, onSuccess }: Pro
               <select
                 value={state}
                 onChange={e => setState(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-white/25 transition-colors appearance-none"
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm  outline-none focus:border-white/25 transition-colors appearance-none"
                 style={{ colorScheme: 'dark' }}
               >
                 <option value="" disabled>Select State</option>
                 {NIGERIAN_STATES.map(s => (
-                  <option key={s} value={s}>{s}</option>
+                  <option className="text-black" key={s} value={s}>{s}</option>
                 ))}
               </select>
 
