@@ -46,8 +46,8 @@ export default function Hero() {
                 onChange={e => setPhone(e.target.value)}
                 placeholder="Your phone number" />
             </div>
-            <button onClick={submit} disabled={loading} className="btn btn-green btn-full text-[1rem]">
-              {loading ? 'Sending…' : 'Get My Monapp Card →'}
+            <button onClick={handleClick} className="btn btn-green btn-full text-[1rem]">
+              Get My Monapp Card →
             </button>
             <p className="text-[0.7rem] text-white/30 text-center">No commitment. We'll call you.</p>
           </div>
