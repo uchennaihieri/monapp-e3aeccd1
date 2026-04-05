@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { Camera, X } from 'lucide-react'
 import { ModalOverlay, CloseBtn, AmberBtn } from './ModalOverlay'
 import { supabase } from '@/util/supabase'
+import { Vehicle } from './VehicleDetailModal'
 
 interface VehicleForm {
   name: string
@@ -21,7 +22,7 @@ const PHOTO_LABELS: { key: keyof VehicleForm['photos']; label: string }[] = [
 
 interface Props {
   onClose: () => void
-  onAdd: (data: { name: string; year: string; vin: string; plate: string; location: string; photos: VehicleForm['photos'] }) => void
+  onAdd: (vehicle: Vehicle) => void
 }
 
 export default function AddVehicleModal({ onClose, onAdd }: Props) {
@@ -90,7 +91,7 @@ export default function AddVehicleModal({ onClose, onAdd }: Props) {
       }
 
       // 3. Insert into DB
-      const { error } = await supabase.from('vehicle').insert([
+      const { data, error } = await supabase.from('vehicle').insert([
         {
           user_id: user.id,
           name: form.name,
@@ -105,6 +106,8 @@ export default function AddVehicleModal({ onClose, onAdd }: Props) {
           status: 'active'
         }
       ])
+    .select()
+    .single()
 
       if (error) {
         console.error(error)
@@ -112,7 +115,45 @@ export default function AddVehicleModal({ onClose, onAdd }: Props) {
         return
       }
 
-      onClose()
+    //   if (data){
+    //      setVehicles(prev => [...prev, {
+    //   id: data.user_id,
+    //   name: data.name ?? '',
+    //   year: data.year ?? '',
+    //   plate: data.plate ?? '',
+    //   vin: data.vin ?? '',
+    //   location: data.location ?? '',
+    //   status: data.status ?? '',
+    //   photos: {
+    //     front: data.front_photo ?? null,
+    //     side: data.side_photo ?? null,
+    //     rear: data.rear_photo ?? null,
+    //     interior: data.interior_photo ?? null,
+    //   },
+    // }])
+    //   }
+
+      // inside AddVehicleModal, after insert
+if (data) {
+  onAdd({
+    id: data.id,             // use actual Supabase id
+    name: data.name ?? '',
+    year: data.year ?? '',
+    vin: data.vin ?? '',
+    plate: data.plate ?? '',
+    location: data.location ?? '',
+    status: data.status ?? 'active',
+    photos: {
+      front: data.front_photo ?? null,
+      side: data.side_photo ?? null,
+      rear: data.rear_photo ?? null,
+      interior: data.interior_photo ?? null,
+    },
+  })
+
+  onClose()
+}
+      // onClose()
 
     } catch (err) {
       console.error(err)

@@ -8,9 +8,11 @@ import FyndRegisterPage from './pages/FyndRegisterPage'
 import FyndDashboardPage from './pages/FyndDashboardPage'
 import PrivacyPage from './pages/PrivacyPage'
 import TermsPage from './pages/TermsPage'
+import { HelmetProvider } from 'react-helmet-async'
 
 export default function App() {
   return (
+    <HelmetProvider>
     <BrowserRouter>
       <AuthProvider>
         <Routes>
@@ -24,5 +26,6 @@ export default function App() {
         </Routes>
       </AuthProvider>
     </BrowserRouter>
+    </HelmetProvider>
   )
 }

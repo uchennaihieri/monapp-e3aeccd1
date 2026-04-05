@@ -18,9 +18,7 @@ const TODAY = new Date()
 const MATURITY = new Date(TODAY.getFullYear() + 1, TODAY.getMonth(), TODAY.getDate())
 const fmt = (d: Date) => d.toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })
 
-const INITIAL_VEHICLES: Vehicle[] = [
-  { id: '1', name: 'Toyota Camry', year: '2020', plate: 'ABC-123-XY', vin: '', location: 'Lagos', status: 'active', photos: { front: null, side: null, rear: null, interior: null } },
-]
+
 
 export default function FyndDashboardPage() {
   const navigate = useNavigate()
@@ -32,7 +30,9 @@ export default function FyndDashboardPage() {
   const [showReportMissing, setShowReportMissing] = useState(false)
   const [showVehicleDetail, setShowVehicleDetail] = useState<Vehicle | null>(null)
   const [showAddVehicle, setShowAddVehicle] = useState(false)
-  const [vehicles, setVehicles] = useState<Vehicle[]>(INITIAL_VEHICLES)
+const [vehicles, setVehicles] = useState<Vehicle[]>([])
+const [vehiclesLoading, setVehiclesLoading] = useState(true)
+
 
     const [firstName, setFirstName]   = useState('')
   const [lastName, setLastName]     = useState('')
@@ -43,7 +43,12 @@ export default function FyndDashboardPage() {
 
 
 useEffect(() => {
-    const load = async () => {
+   
+    load()
+    loadVehicles()
+  }, [navigate])
+
+ const load = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { navigate('/fynd', { replace: true }); return }
 
@@ -64,10 +69,37 @@ useEffect(() => {
       }
       setProfileReady(true)
     }
-    load()
-  }, [navigate])
 
+  const loadVehicles = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
 
+    const { data, error } = await supabase
+      .from('vehicle')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .order('created_at', { ascending: true })
+
+    if (!error && data) {
+      // Map flat photo columns → nested photos object your components expect
+      setVehicles(data.map(row => ({
+        id: row.id,
+        name: row.name ?? '',
+        year: row.year ?? '',
+        plate: row.plate ?? '',
+        vin: row.vin ?? '',
+        location: row.location ?? '',
+        status: (row.status ?? 'active') as VehicleStatus,
+        photos: {
+          front: row.front_photo ?? null,
+          side: row.side_photo ?? null,
+          rear: row.rear_photo ?? null,
+          interior: row.interior_photo ?? null,
+        },
+      })))
+    }
+    setVehiclesLoading(false)
+  }
   
   // Initials: first letter of first name + first letter of last name
   const initials = [firstName, lastName]
@@ -102,16 +134,30 @@ useEffect(() => {
     setShowDeposit(false)
   }
 
-  function addVehicle(data: { name: string; year: string; vin: string; plate: string; location: string; photos: Vehicle['photos'] }) {
-    const id = String(Date.now())
-    setVehicles(prev => [...prev, { id, ...data, status: 'active' as VehicleStatus }])
-    setShowAddVehicle(false)
-  }
+  
 
-  function changeVehicleStatus(vehicleId: string, status: VehicleStatus) {
+  // function addVehicle(data: { name: string; year: string; vin: string; plate: string; location: string; photos: Vehicle['photos'] }) {
+  //   const id = String(Date.now())
+  //   setVehicles(prev => [...prev, { id, ...data, status: 'active' as VehicleStatus }])
+  //   setShowAddVehicle(false)
+  // }
+
+  function addVehicle(vehicle: Vehicle) {
+  setVehicles(prev => [...prev, vehicle])
+  setShowAddVehicle(false)
+}
+
+async function changeVehicleStatus(vehicleId: string, status: VehicleStatus) {
+  const { error } = await supabase
+    .from('vehicle')
+    .update({ status })
+    .eq('id', vehicleId)
+
+  if (!error) {
     setVehicles(prev => prev.map(v => v.id === vehicleId ? { ...v, status } : v))
-    setShowVehicleDetail(null)
   }
+  setShowVehicleDetail(null)
+}
 
   function reportMissing(vehicleId: string) {
     changeVehicleStatus(vehicleId, 'missing')
@@ -239,7 +285,7 @@ useEffect(() => {
             </button>
           </div>
 
-          <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
+          {/* <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
             {vehicles.map(v => {
               const s = STATUS_COLORS[v.status]
               return (
@@ -257,7 +303,31 @@ useEffect(() => {
                 </button>
               )
             })}
-          </div>
+          </div> */}
+
+          <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
+  {vehiclesLoading ? (
+    <p className="text-xs text-gray-300 py-4 px-1">Loading vehicles…</p>
+  ) : vehicles.length === 0 ? (
+    <p className="text-xs text-gray-300 py-4 px-1">No vehicles yet. Tap Add to get started.</p>
+  ) : vehicles.map(v => {
+    const s = STATUS_COLORS[v.status]
+    return (
+      <button
+        key={v.id}
+        onClick={() => setShowVehicleDetail(v)}
+        className="min-w-[200px] p-4 rounded-xl bg-gray-50 border border-gray-100 text-left cursor-pointer hover:border-gray-200 hover:shadow-sm transition-all shrink-0"
+      >
+        <div className="flex items-center justify-between mb-2">
+          <span className={`text-[0.6rem] font-bold px-2 py-0.5 rounded-full ${s.bg} ${s.text}`}>{s.label}</span>
+          <ChevronRight size={14} className="text-gray-300" />
+        </div>
+        <p className="font-bold text-sm text-gray-900" style={{ fontFamily: 'Syne, sans-serif' }}>{v.name} {v.year}</p>
+        <p className="text-xs text-gray-400">{v.plate} · {v.location}</p>
+      </button>
+    )
+  })}
+</div>
         </div>
       </div>
 
