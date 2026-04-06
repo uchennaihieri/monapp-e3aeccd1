@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
-  ShieldCheck, Wrench, AlertTriangle, Plus, ArrowDownToLine,
-  Clock, CalendarDays, Banknote, ChevronRight, PlusCircle, LogOut, User
+  ShieldCheck, Wrench, Star, Plus, ArrowDownToLine,
+  Clock, CalendarDays, Banknote, ChevronRight, PlusCircle, LogOut, User, AlertTriangle
 } from 'lucide-react'
 import { supabase } from '@/util/supabase'
 import { ModalOverlay, CloseBtn, AmberBtn } from '../components/fynd/ModalOverlay'
 import AddVehicleModal from '../components/fynd/AddVehicleModal'
+import FindMechanicModal from '../components/fynd/FindMechanicModal'
+import RateMechanicModal from '../components/fynd/RateMechanicModal'
 import VehicleDetailModal, {
   STATUS_COLORS,
   type Vehicle,
