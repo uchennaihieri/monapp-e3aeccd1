@@ -485,6 +485,18 @@ async function changeVehicleStatus(vehicleId: string, status: VehicleStatus) {
           <AddVehicleModal onClose={() => setShowAddVehicle(false)} onAdd={addVehicle} />
         )}
       </AnimatePresence>
+
+      <AnimatePresence>
+        {showFindMechanic && (
+          <FindMechanicModal onClose={() => setShowFindMechanic(false)} />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showRateMechanic && (
+          <RateMechanicModal vehicles={vehicles} onClose={() => setShowRateMechanic(false)} />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
