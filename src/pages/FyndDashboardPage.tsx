@@ -258,8 +258,8 @@ async function changeVehicleStatus(vehicleId: string, status: VehicleStatus) {
           <p className="text-[0.65rem] font-semibold uppercase tracking-widest text-gray-300 mb-2" style={{ fontFamily: 'Syne, sans-serif' }}>Quick Actions</p>
           <div className="grid grid-cols-2 gap-3 mb-5">
             {[
-              { icon: Wrench, label: 'Find Mechanic', desc: 'Nearby verified' },
-              { icon: AlertTriangle, label: 'Report Missing', desc: 'Alert network', action: () => fyndActive && setShowReportMissing(true) },
+              { icon: Wrench, label: 'Find Mechanic', desc: 'Nearby verified', action: () => fyndActive && setShowFindMechanic(true) },
+              { icon: Star, label: 'Rate Mechanic', desc: 'Leave a review', action: () => fyndActive && setShowRateMechanic(true) },
             ].map(({ icon: Icon, label, desc, action }) => {
               const locked = !fyndActive
               return (
