@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
-  ShieldCheck, Wrench, AlertTriangle, Plus, ArrowDownToLine,
-  Clock, CalendarDays, Banknote, ChevronRight, PlusCircle, LogOut, User
+  ShieldCheck, Wrench, Star, Plus, ArrowDownToLine,
+  Clock, CalendarDays, Banknote, ChevronRight, PlusCircle, LogOut, User, AlertTriangle
 } from 'lucide-react'
 import { supabase } from '@/util/supabase'
 import { ModalOverlay, CloseBtn, AmberBtn } from '../components/fynd/ModalOverlay'
 import AddVehicleModal from '../components/fynd/AddVehicleModal'
+import FindMechanicModal from '../components/fynd/FindMechanicModal'
+import RateMechanicModal from '../components/fynd/RateMechanicModal'
 import VehicleDetailModal, {
   STATUS_COLORS,
   type Vehicle,
@@ -28,6 +30,8 @@ export default function FyndDashboardPage() {
   const [showDeposit, setShowDeposit] = useState(false)
   const [showActivateConfirm, setShowActivateConfirm] = useState(false)
   const [showReportMissing, setShowReportMissing] = useState(false)
+  const [showFindMechanic, setShowFindMechanic] = useState(false)
+  const [showRateMechanic, setShowRateMechanic] = useState(false)
   const [showVehicleDetail, setShowVehicleDetail] = useState<Vehicle | null>(null)
   const [showAddVehicle, setShowAddVehicle] = useState(false)
 const [vehicles, setVehicles] = useState<Vehicle[]>([])
@@ -254,8 +258,8 @@ async function changeVehicleStatus(vehicleId: string, status: VehicleStatus) {
           <p className="text-[0.65rem] font-semibold uppercase tracking-widest text-gray-300 mb-2" style={{ fontFamily: 'Syne, sans-serif' }}>Quick Actions</p>
           <div className="grid grid-cols-2 gap-3 mb-5">
             {[
-              { icon: Wrench, label: 'Find Mechanic', desc: 'Nearby verified' },
-              { icon: AlertTriangle, label: 'Report Missing', desc: 'Alert network', action: () => fyndActive && setShowReportMissing(true) },
+              { icon: Wrench, label: 'Find Mechanic', desc: 'Nearby verified', action: () => fyndActive && setShowFindMechanic(true) },
+              { icon: Star, label: 'Rate Mechanic', desc: 'Leave a review', action: () => fyndActive && setShowRateMechanic(true) },
             ].map(({ icon: Icon, label, desc, action }) => {
               const locked = !fyndActive
               return (
@@ -479,6 +483,18 @@ async function changeVehicleStatus(vehicleId: string, status: VehicleStatus) {
       <AnimatePresence>
         {showAddVehicle && (
           <AddVehicleModal onClose={() => setShowAddVehicle(false)} onAdd={addVehicle} />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showFindMechanic && (
+          <FindMechanicModal onClose={() => setShowFindMechanic(false)} />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showRateMechanic && (
+          <RateMechanicModal vehicles={vehicles} onClose={() => setShowRateMechanic(false)} />
         )}
       </AnimatePresence>
     </div>
