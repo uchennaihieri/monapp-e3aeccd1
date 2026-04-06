@@ -30,6 +30,8 @@ export default function FyndDashboardPage() {
   const [showDeposit, setShowDeposit] = useState(false)
   const [showActivateConfirm, setShowActivateConfirm] = useState(false)
   const [showReportMissing, setShowReportMissing] = useState(false)
+  const [showFindMechanic, setShowFindMechanic] = useState(false)
+  const [showRateMechanic, setShowRateMechanic] = useState(false)
   const [showVehicleDetail, setShowVehicleDetail] = useState<Vehicle | null>(null)
   const [showAddVehicle, setShowAddVehicle] = useState(false)
 const [vehicles, setVehicles] = useState<Vehicle[]>([])
