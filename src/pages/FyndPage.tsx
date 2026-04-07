@@ -49,7 +49,7 @@
 //     <div className="flex flex-col gap-3 max-w-sm">
 //       <Helmet>
 //   <title>Monapp Fynd — Find Mechanics Fast & Recover Missing Vehicles</title>
-//   <meta name="description" content="Monapp Fynd connects Nigerian drivers to nearby verified mechanics instantly. Report a missing vehicle and your recovery network activates in seconds. ₦25,000 refundable balance." />
+//   <meta name="description" content="Monapp Fynd connects Nigerian drivers to nearby verified mechanics instantly. Report a missing vehicle and your recovery network activates in seconds. ₦10,000 refundable balance." />
 // </Helmet>
 //       <input
 //         type="email"
@@ -68,7 +68,7 @@
 //       <button onClick={submit} disabled={loading} className={`btn ${btnClass} btn-full text-[1rem]`}>
 //         {loading ? 'Sending…' : btnLabel}
 //       </button>
-//       <p className="text-[0.7rem] text-white/35 text-center">Refundable ₦25,000 balance · Not a fee</p>
+//       <p className="text-[0.7rem] text-white/35 text-center">Refundable ₦10,000 balance · Not a fee</p>
 //     </div>
 //   )
 // }
@@ -153,7 +153,7 @@
 //               <span className="overline block mb-3 fade-up" style={{ color:'rgba(232,160,32,0.65)' }}>About the balance</span>
 //               <h2 className="h2 mb-5 fade-up">Your money stays yours.</h2>
 //               <p className="text-white/55 text-base leading-relaxed mb-4 fade-up">
-//                 Maintain a <strong className="text-white">₦25,000 refundable security balance</strong> to access Fynd. It is not a fee. It is not a charge. It is your money — sitting safely, giving you access to Fynd.
+//                 Maintain a <strong className="text-white">₦10,000 refundable security balance</strong> to access Fynd. It is not a fee. It is not a charge. It is your money — sitting safely, giving you access to Fynd.
 //               </p>
 //               <p className="text-white/55 text-base leading-relaxed mb-8 fade-up">
 //                 You can withdraw it at any time after your cycle. Your balance is yours.
@@ -176,7 +176,7 @@
 //               <div className="w-full max-w-[280px] p-7 rounded-2xl text-center"
 //                 style={{ background:'var(--surface)', border:'1px solid rgba(232,160,32,0.14)' }}>
 //                 <p className="text-[0.6rem] tracking-widest uppercase text-white/35 mb-2">Security Balance</p>
-//                 <p className="font-extrabold mb-1" style={{ fontFamily:'Syne,sans-serif', fontSize:'2.5rem', color:'var(--amber)' }}>₦25,000</p>
+//                 <p className="font-extrabold mb-1" style={{ fontFamily:'Syne,sans-serif', fontSize:'2.5rem', color:'var(--amber)' }}>₦10,000</p>
 //                 <p className="text-xs text-white/35 mb-7">Refundable · Your Money</p>
 //                 <div className="space-y-3 text-left">
 //                   {[
@@ -214,7 +214,7 @@
 //               {/* simple visual */}
 //               <div className="w-full max-w-[300px] space-y-3">
 //                 {[
-//                   { icon:'👤', label:'You maintain ₦25,000', color:'var(--amber)' },
+//                   { icon:'👤', label:'You maintain ₦10,000', color:'var(--amber)' },
 //                   { icon:'🔧', label:'Supports driver repair access', color:'var(--green-bright)' },
 //                   { icon:'📍', label:'Grows the mechanic network', color:'var(--green-bright)' },
 //                   { icon:'🔄', label:'Your balance stays yours', color:'var(--amber)' },
@@ -241,7 +241,7 @@
 //             <div className="grid-divider grid-cols-1 sm:grid-cols-3">
 //               {[
 //                 { n:'01', t:'Register your vehicle', d:'Sign up with your phone, add your vehicle make, model, and plate number.' },
-//                 { n:'02', t:'Maintain ₦25k balance', d:'Fund your Monapp wallet with ₦25,000. Fynd activates immediately. The money stays yours.' },
+//                 { n:'02', t:'Maintain ₦25k balance', d:'Fund your Monapp wallet with ₦10,000. Fynd activates immediately. The money stays yours.' },
 //                 { n:'03', t:'Get help anytime', d:"Breakdown? Tap Fynd. Missing car? Report it. The network activates within seconds." },
 //               ].map(({ n, t, d }, i) => (
 //                 <div key={n} className="fade-up p-8" style={{ background:'var(--surface)', transitionDelay:`${i*0.1}s` }}>
@@ -267,7 +267,7 @@
 //             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 //               {[
 //                 { q:'No hidden charges?', a:'None. Fynd is free to use. The ₦25k is a security balance — not a charge.' },
-//                 { q:'Can I get my money back?', a:'Yes. Your ₦25,000 balance is fully refundable. Withdraw after your cycle, anytime.' },
+//                 { q:'Can I get my money back?', a:'Yes. Your ₦10,000 balance is fully refundable. Withdraw after your cycle, anytime.' },
 //                 { q:'Is help always available?', a:'24/7. Expressway at midnight or quiet suburb — Fynd is always on.' },
 //               ].map(({ q, a }, i) => (
 //                 <div key={q} className="fade-up p-6 rounded-2xl"
@@ -290,7 +290,7 @@
 //             Don't wait until something happens.
 //           </h2>
 //           <p className="text-black/60 text-base mb-8 leading-relaxed">
-//             Activate Fynd with a refundable ₦25,000 balance. Free mechanic access. Free car recovery.
+//             Activate Fynd with a refundable ₦10,000 balance. Free mechanic access. Free car recovery.
 //           </p>
 //           <EmailForm btnLabel="Protect My Vehicle Now →" btnClass="btn-dark" />
 //           <div className="mt-8 pt-6 flex justify-center" style={{ borderTop:'1px solid rgba(0,0,0,0.1)' }}>
@@ -370,7 +370,7 @@ function EmailForm({ btnLabel, btnClass = 'btn-dark' }: { btnLabel: string; btnC
       <button onClick={submit} disabled={loading} className={`btn ${btnClass} btn-full text-[1rem]`}>
         {loading ? 'Sending…' : btnLabel}
       </button>
-      <p className="text-[0.7rem] text-white/35 text-center">Refundable ₦25,000 balance · Not a fee</p>
+      <p className="text-[0.7rem] text-white/35 text-center">Refundable ₦10,000 balance · Not a fee</p>
     </div>
   )
 }
@@ -386,7 +386,7 @@ export default function FyndPage() {
     <div style={{ background:'#0d0b08', color:'var(--off-white)', minHeight:'100vh' }}>
       <Helmet>
         <title>Monapp Fynd — Find Trusted Mechanics Fast</title>
-        <meta name="description" content="Monapp Fynd connects Nigerian drivers to nearby verified, trusted mechanics instantly. ₦25,000 refundable security balance. No hidden fees." />
+        <meta name="description" content="Monapp Fynd connects Nigerian drivers to nearby verified, trusted mechanics instantly. ₦10,000 refundable security balance. No hidden fees." />
       </Helmet>
 
       <Navbar theme="amber" />
@@ -467,7 +467,7 @@ export default function FyndPage() {
               <span className="overline block mb-3 fade-up" style={{ color:'rgba(232,160,32,0.65)' }}>About the balance</span>
               <h2 className="h2 mb-5 fade-up">Your money stays yours.</h2>
               <p className="text-white/55 text-base leading-relaxed mb-4 fade-up">
-                Maintain a <strong className="text-white">₦25,000 refundable security balance</strong> to access Fynd.
+                Maintain a <strong className="text-white">₦10,000 refundable security balance</strong> to access Fynd.
                 It's not a fee — it's your money, giving you full access to a trusted mechanic network.
               </p>
               <p className="text-white/55 text-base leading-relaxed mb-8 fade-up">
@@ -492,7 +492,7 @@ export default function FyndPage() {
               <div className="w-full max-w-[280px] p-7 rounded-2xl text-center"
                 style={{ background:'var(--surface)', border:'1px solid rgba(232,160,32,0.14)' }}>
                 <p className="text-[0.6rem] tracking-widest uppercase text-white/35 mb-2">Security Balance</p>
-                <p className="font-extrabold mb-1" style={{ fontFamily:'Syne,sans-serif', fontSize:'2.5rem', color:'var(--amber)' }}>₦25,000</p>
+                <p className="font-extrabold mb-1" style={{ fontFamily:'Syne,sans-serif', fontSize:'2.5rem', color:'var(--amber)' }}>₦10,000</p>
                 <p className="text-xs text-white/35 mb-7">Refundable · Your Money</p>
                 <div className="space-y-3 text-left">
                   {[
@@ -529,7 +529,7 @@ export default function FyndPage() {
             <div className="fade-up flex justify-center">
               <div className="w-full max-w-[300px] space-y-3">
                 {[
-                  { icon:'👤', label:'You maintain ₦25,000',       color:'var(--amber)' },
+                  { icon:'👤', label:'You maintain ₦10,000',       color:'var(--amber)' },
                   { icon:'🔧', label:'Supports driver repair access', color:'var(--green-bright)' },
                   { icon:'📍', label:'Grows the mechanic network',  color:'var(--green-bright)' },
                   { icon:'🔄', label:'Your balance stays yours',    color:'var(--amber)' },
@@ -556,7 +556,7 @@ export default function FyndPage() {
             <div className="grid-divider grid-cols-1 sm:grid-cols-3">
               {[
                 { n:'01', t:'Register your vehicle', d:'Sign up with your email, add your vehicle make, model, and plate number.' },
-                { n:'02', t:'Maintain ₦25k balance', d:'Fund your Monapp wallet with ₦25,000. Fynd activates immediately. The money stays yours.' },
+                { n:'02', t:'Maintain ₦25k balance', d:'Fund your Monapp wallet with ₦10,000. Fynd activates immediately. The money stays yours.' },
                 { n:'03', t:'Find a mechanic instantly', d:"Breakdown? Open Fynd and connect to a verified mechanic near you immediately." },
               ].map(({ n, t, d }, i) => (
                 <div key={n} className="fade-up p-8" style={{ background:'var(--surface)', transitionDelay:`${i*0.1}s` }}>
@@ -582,7 +582,7 @@ export default function FyndPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[
                 { q:'No hidden charges?',        a:'None. Fynd is free to use. The ₦25k is a security balance — not a charge.' },
-                { q:'Can I get my money back?',  a:'Yes. Your ₦25,000 balance is fully refundable. Withdraw after your cycle, anytime.' },
+                { q:'Can I get my money back?',  a:'Yes. Your ₦10,000 balance is fully refundable. Withdraw after your cycle, anytime.' },
                 { q:'Will I find reliable mechanics?', a:'Yes. All mechanics on Fynd are verified and rated by other users, so you can choose with confidence.' },
               ].map(({ q, a }, i) => (
                 <div key={q} className="fade-up p-6 rounded-2xl"
@@ -605,7 +605,7 @@ export default function FyndPage() {
             Don't wait until something happens.
           </h2>
           <p className="text-black/60 text-base mb-8 leading-relaxed">
-            Activate Fynd with a refundable ₦25,000 balance and get instant access to trusted mechanics whenever you need them.
+            Activate Fynd with a refundable ₦10,000 balance and get instant access to trusted mechanics whenever you need them.
           </p>
           <EmailForm btnLabel="Find Trusted Mechanics Now →" btnClass="btn-dark" />
           <div className="mt-8 pt-6 flex justify-center" style={{ borderTop:'1px solid rgba(0,0,0,0.1)' }}>
@@ -624,7 +624,7 @@ export default function FyndPage() {
       Don't wait until something happens.
     </h2>
     <p className="text-black/60 text-base mb-8 leading-relaxed">
-      Activate Fynd with a refundable ₦25,000 balance and get instant access to trusted mechanics whenever you need them.
+      Activate Fynd with a refundable ₦10,000 balance and get instant access to trusted mechanics whenever you need them.
     </p>
     <div className="flex justify-center">
       <EmailForm btnLabel="Find Trusted Mechanics Now →" btnClass="btn-dark" />

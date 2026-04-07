@@ -5,7 +5,7 @@ const items = [
   ['Eligibility.', 'You must provide a valid Nigerian phone number, complete KYC, and submit accurate information. You are responsible for your PIN.'],
   ['Card use.', 'The Monapp credit card is for vehicle repairs and maintenance only. Using it for anything else is a breach of these Terms.'],
   ['Repayment.', 'You agree to daily repayment deductions at the rate set at onboarding. Failure to repay may suspend your card.'],
-  ['Fynd balance.', 'The ₦25,000 Fynd security balance is refundable after your cycle. Monapp may withhold it if outstanding amounts are owed.'],
+  ['Fynd balance.', 'The ₦10,000 Fynd security balance is refundable after your cycle. Monapp may withhold it if outstanding amounts are owed.'],
   ['Third parties.', 'Workshops and mechanics are independent. Monapp is not responsible for their services or any disputes with them.'],
   ['Prohibited use.', 'You may not use the service for illegal activities. Suspected fraud will result in immediate suspension and reporting to authorities.'],
   ['Liability.', 'Monapp is not liable for indirect, incidental, or consequential damages arising from use of the service.'],

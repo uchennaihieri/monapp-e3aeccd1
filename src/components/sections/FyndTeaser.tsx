@@ -27,7 +27,7 @@
 //             {[
 //               { t: 'Breakdown?', d: "Fynd finds the nearest verified mechanic to your exact location." },
 //               { t: 'Car missing?', d: "Report it and Fynd alerts mechanics and community members across the area." },
-//               { t: 'Free to use.', d: "Just maintain a ₦25,000 refundable security balance — not a fee." },
+//               { t: 'Free to use.', d: "Just maintain a ₦10,000 refundable security balance — not a fee." },
 //             ].map(({ t, d }) => (
 //               <div key={t} className="trust-row">
 //                 <div className="trust-dot trust-dot-amber">✓</div>
@@ -81,7 +81,7 @@ export default function FyndTeaser() {
             {[
               { t: 'Breakdown?', d: "Fynd finds the nearest verified mechanic to your exact location. No guesswork." },
               { t: 'Trusted professionals.', d: "Every mechanic on Fynd is verified and rated by other drivers — so you know who you're dealing with." },
-              { t: 'Free to use.', d: "Just maintain a ₦25,000 refundable security balance — not a fee." },
+              { t: 'Free to use.', d: "Just maintain a ₦10,000 refundable security balance — not a fee." },
             ].map(({ t, d }) => (
               <div key={t} className="trust-row">
                 <div className="trust-dot trust-dot-amber">✓</div>

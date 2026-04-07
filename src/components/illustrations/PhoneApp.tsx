@@ -58,7 +58,7 @@ export default function PhoneApp({ className = '', variant = 'credit' }: { class
               <circle cx="56" cy="142" r="4" fill="#e8a020" className="pulse"/>
               <text x="72" y="138" fill="#e8a020" fontFamily="Inter,system-ui,sans-serif" fontSize="8" fontWeight="600">Fynd Active</text>
               <text x="72" y="149" fill="#fff" fillOpacity="0.5" fontFamily="Inter,system-ui,sans-serif" fontSize="7">Monitoring your vehicle</text>
-              <text x="38" y="173" fill="#fff" fillOpacity="0.7" fontFamily="Inter,system-ui,sans-serif" fontSize="9" fontWeight="600">Balance: ₦25,000</text>
+              <text x="38" y="173" fill="#fff" fillOpacity="0.7" fontFamily="Inter,system-ui,sans-serif" fontSize="9" fontWeight="600">Balance: ₦10,000</text>
               <text x="38" y="185" fill="#2ecc5f" fontFamily="Inter,system-ui,sans-serif" fontSize="8">Refundable · Active</text>
               {/* Mechanic cards */}
               <text x="38" y="220" fill="#fff" fillOpacity="0.4" fontFamily="Inter,system-ui,sans-serif" fontSize="8" letterSpacing="0.8">MECHANICS NEAR YOU</text>

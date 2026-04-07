@@ -123,7 +123,7 @@ useEffect(() => {
     navigate('/fynd', { replace: true })
   }
 
-  const canActivate = balance >= 25000
+  const canActivate = balance >= 10000
 
   function handleActivateClick() {
     if (!canActivate) return
@@ -136,7 +136,7 @@ useEffect(() => {
   }
 
   function handleMoneySent() {
-    setBalance(prev => prev + 25000)
+    setBalance(prev => prev + 10000)
     setShowDeposit(false)
   }
 
@@ -236,7 +236,7 @@ async function changeVehicleStatus(vehicleId: string, status: VehicleStatus) {
                 style={canActivate ? { background: 'var(--amber)' } : undefined}
               >
                 <ShieldCheck size={16} />
-                {canActivate ? 'Activate Fynd' : 'Deposit ₦25,000 to activate'}
+                {canActivate ? 'Activate Fynd' : 'Deposit ₦10,000 to activate'}
               </button>
             )}
           </div>
@@ -406,7 +406,7 @@ async function changeVehicleStatus(vehicleId: string, status: VehicleStatus) {
               <CloseBtn onClick={() => setShowDeposit(false)} />
             </div>
             <div className="rounded-xl bg-gray-50 border border-gray-100 p-4 mb-4 space-y-3">
-              {[['Amount', '₦25,000'], ['Bank', 'Wema Bank'], ['Account Number', '8230145679'], ['Account Name', 'Monapp Technologies Ltd']].map(([l, v]) => (
+              {[['Amount', '₦10,000'], ['Bank', 'Wema Bank'], ['Account Number', '8230145679'], ['Account Name', 'Monapp Technologies Ltd']].map(([l, v]) => (
                 <div key={l} className="flex justify-between text-sm">
                   <span className="text-gray-400">{l}</span>
                   <span className="font-bold text-gray-900">{v}</span>
@@ -428,7 +428,7 @@ async function changeVehicleStatus(vehicleId: string, status: VehicleStatus) {
             </div>
             <div className="rounded-xl bg-gray-50 border border-gray-100 p-4 mb-4 space-y-3">
               {[
-                { icon: Banknote, label: 'Security Deposit', value: '₦25,000' },
+                { icon: Banknote, label: 'Security Deposit', value: '₦10,000' },
                 { icon: CalendarDays, label: 'Start Date', value: fmt(TODAY) },
                 { icon: Clock, label: 'Maturity Date', value: fmt(MATURITY) },
               ].map(({ icon: Icon, label, value }) => (
@@ -446,7 +446,7 @@ async function changeVehicleStatus(vehicleId: string, status: VehicleStatus) {
                 <p className="text-xs text-gray-500">Keep Fynd active after maturity without reactivating</p>
               </div>
             </label>
-            <p className="text-xs text-gray-400 mb-5 leading-relaxed">₦25,000 will be held as a refundable security deposit for 12 months. You can withdraw after maturity.</p>
+            <p className="text-xs text-gray-400 mb-5 leading-relaxed">₦10,000 will be held as a refundable security deposit for 12 months. You can withdraw after maturity.</p>
             <AmberBtn onClick={confirmActivation} icon={<ShieldCheck size={16} />}>Confirm & Activate</AmberBtn>
           </ModalOverlay>
         )}
