@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 export default function FyndOtpPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const email = (location.state as any)?.email || ''
+  const email = (location.state as any)?.email || new URLSearchParams(location.search).get('email') || ''
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')

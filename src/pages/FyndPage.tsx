@@ -345,7 +345,8 @@ function EmailForm({ btnLabel, btnClass = 'btn-dark' }: { btnLabel: string; btnC
 
       if (data) {
         setLoading(false)
-        navigate('/fynd/verify', { state: { email } })
+        const search = new URLSearchParams({ email }).toString()
+        navigate({ pathname: '/fynd/verify', search: `?${search}` }, { state: { email } })
       }
     } catch { /* continue to OTP regardless */ }
   }
