@@ -1,4 +1,4 @@
-const items = ['Vehicle Repair Credit','0.3% Daily Interest','Only for Your Vehicle','Find Mechanics Fast','₦25k Refundable Balance','No Cash Misuse','Built for Drivers']
+const items = ['Vehicle Repair Credit','0.3% Daily Interest','Only for Your Vehicle','Find Mechanics Fast','₦10k Refundable Balance','No Cash Misuse','Built for Drivers']
 const doubled = [...items,...items]
 export default function Ticker() {
   return (

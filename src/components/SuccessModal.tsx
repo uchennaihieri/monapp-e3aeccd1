@@ -12,7 +12,7 @@ export default function SuccessModal({ isOpen, onClose, type = 'card' }: Props) 
         </h2>
         <p className="text-white/55 text-sm mb-6 leading-relaxed">
           {type === 'fynd'
-            ? 'We\'ll call you to set up your Fynd access and explain the ₦25k refundable balance.'
+            ? 'We\'ll call you to set up your Fynd access and explain the ₦10k refundable balance.'
             : 'We\'ll call you shortly to get your Monapp card set up.'}
         </p>
         <button onClick={onClose} className="btn btn-green btn-full">Done</button>

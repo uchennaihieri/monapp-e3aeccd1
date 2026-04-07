@@ -145,7 +145,7 @@
 //         </section>
 //       </div>
 
-//       {/* ── ₦25K EXPLANATION ── */}
+//       {/* ── ₦10K EXPLANATION ── */}
 //       <div ref={secMoney}>
 //         <section className="sec" style={{ background:'var(--black)' }}>
 //           <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
@@ -241,7 +241,7 @@
 //             <div className="grid-divider grid-cols-1 sm:grid-cols-3">
 //               {[
 //                 { n:'01', t:'Register your vehicle', d:'Sign up with your phone, add your vehicle make, model, and plate number.' },
-//                 { n:'02', t:'Maintain ₦25k balance', d:'Fund your Monapp wallet with ₦10,000. Fynd activates immediately. The money stays yours.' },
+//                 { n:'02', t:'Maintain ₦10k balance', d:'Fund your Monapp wallet with ₦10,000. Fynd activates immediately. The money stays yours.' },
 //                 { n:'03', t:'Get help anytime', d:"Breakdown? Tap Fynd. Missing car? Report it. The network activates within seconds." },
 //               ].map(({ n, t, d }, i) => (
 //                 <div key={n} className="fade-up p-8" style={{ background:'var(--surface)', transitionDelay:`${i*0.1}s` }}>
@@ -266,7 +266,7 @@
 //             <h2 className="h2 mb-10 fade-up" style={{ maxWidth:'20ch' }}>Everything up front. No surprises.</h2>
 //             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 //               {[
-//                 { q:'No hidden charges?', a:'None. Fynd is free to use. The ₦25k is a security balance — not a charge.' },
+//                 { q:'No hidden charges?', a:'None. Fynd is free to use. The ₦10k is a security balance — not a charge.' },
 //                 { q:'Can I get my money back?', a:'Yes. Your ₦10,000 balance is fully refundable. Withdraw after your cycle, anytime.' },
 //                 { q:'Is help always available?', a:'24/7. Expressway at midnight or quiet suburb — Fynd is always on.' },
 //               ].map(({ q, a }, i) => (
@@ -459,7 +459,7 @@ export default function FyndPage() {
         </section>
       </div>
 
-      {/* ── ₦25K EXPLANATION ── */}
+      {/* ── ₦10K EXPLANATION ── */}
       <div ref={secMoney}>
         <section className="sec" style={{ background:'var(--black)' }}>
           <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
@@ -556,7 +556,7 @@ export default function FyndPage() {
             <div className="grid-divider grid-cols-1 sm:grid-cols-3">
               {[
                 { n:'01', t:'Register your vehicle', d:'Sign up with your email, add your vehicle make, model, and plate number.' },
-                { n:'02', t:'Maintain ₦25k balance', d:'Fund your Monapp wallet with ₦10,000. Fynd activates immediately. The money stays yours.' },
+                { n:'02', t:'Maintain ₦10k balance', d:'Fund your Monapp wallet with ₦10,000. Fynd activates immediately. The money stays yours.' },
                 { n:'03', t:'Find a mechanic instantly', d:"Breakdown? Open Fynd and connect to a verified mechanic near you immediately." },
               ].map(({ n, t, d }, i) => (
                 <div key={n} className="fade-up p-8" style={{ background:'var(--surface)', transitionDelay:`${i*0.1}s` }}>
@@ -581,7 +581,7 @@ export default function FyndPage() {
             <h2 className="h2 mb-10 fade-up" style={{ maxWidth:'20ch' }}>Everything up front. No surprises.</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[
-                { q:'No hidden charges?',        a:'None. Fynd is free to use. The ₦25k is a security balance — not a charge.' },
+                { q:'No hidden charges?',        a:'None. Fynd is free to use. The ₦10k is a security balance — not a charge.' },
                 { q:'Can I get my money back?',  a:'Yes. Your ₦10,000 balance is fully refundable. Withdraw after your cycle, anytime.' },
                 { q:'Will I find reliable mechanics?', a:'Yes. All mechanics on Fynd are verified and rated by other users, so you can choose with confidence.' },
               ].map(({ q, a }, i) => (
