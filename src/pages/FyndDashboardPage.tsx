@@ -10,6 +10,7 @@ import { ModalOverlay, CloseBtn, AmberBtn } from '../components/fynd/ModalOverla
 import AddVehicleModal from '../components/fynd/AddVehicleModal'
 import FindMechanicModal from '../components/fynd/FindMechanicModal'
 import RateMechanicModal from '../components/fynd/RateMechanicModal'
+import PayVendorModal from '../components/fynd/PayVendorModal'
 import VehicleDetailModal, {
   STATUS_COLORS,
   type Vehicle,
@@ -32,6 +33,7 @@ export default function FyndDashboardPage() {
   const [showReportMissing, setShowReportMissing] = useState(false)
   const [showFindMechanic, setShowFindMechanic] = useState(false)
   const [showRateMechanic, setShowRateMechanic] = useState(false)
+  const [showPayVendor, setShowPayVendor] = useState(false)
   const [showVehicleDetail, setShowVehicleDetail] = useState<Vehicle | null>(null)
   const [showAddVehicle, setShowAddVehicle] = useState(false)
 const [vehicles, setVehicles] = useState<Vehicle[]>([])
@@ -248,9 +250,12 @@ async function changeVehicleStatus(vehicleId: string, status: VehicleStatus) {
               <Plus size={16} className="text-green-600" />
               Add Deposit
             </button>
-            <button className="flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold border border-gray-200 bg-white text-gray-800 cursor-pointer hover:bg-gray-50 transition-colors">
-              <ArrowDownToLine size={16} className="text-amber-600" />
-              Withdraw
+            <button
+              onClick={() => setShowPayVendor(true)}
+              className="flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold border border-gray-200 bg-white text-gray-800 cursor-pointer hover:bg-gray-50 transition-colors"
+            >
+              <Banknote size={16} className="text-amber-600" />
+              Pay Vendor
             </button>
           </div>
 
@@ -494,7 +499,13 @@ async function changeVehicleStatus(vehicleId: string, status: VehicleStatus) {
 
       <AnimatePresence>
         {showRateMechanic && (
-          <RateMechanicModal onClose={() => setShowRateMechanic(false)} />
+          <RateMechanicModal onClose={() => setShowRateMechanic(false)} vehicles={vehicles} />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showPayVendor && (
+          <PayVendorModal onClose={() => setShowPayVendor(false)} vehicles={vehicles} balance={balance} />
         )}
       </AnimatePresence>
     </div>
