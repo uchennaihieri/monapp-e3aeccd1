@@ -502,6 +502,12 @@ async function changeVehicleStatus(vehicleId: string, status: VehicleStatus) {
           <RateMechanicModal onClose={() => setShowRateMechanic(false)} vehicles={vehicles} />
         )}
       </AnimatePresence>
+
+      <AnimatePresence>
+        {showPayVendor && (
+          <PayVendorModal onClose={() => setShowPayVendor(false)} vehicles={vehicles} balance={balance} />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
