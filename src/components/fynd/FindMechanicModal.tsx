@@ -1,28 +1,18 @@
 import { useState, useEffect } from 'react'
 import { Phone, Star, MapPin, Search, Loader2, Navigation } from 'lucide-react'
 import { ModalOverlay, CloseBtn } from './ModalOverlay'
+import { supabase } from '@/util/supabase'
 
-interface Mechanic {
+export interface Mechanic {
   id: string
-  firstName: string
-  lastName: string
+  first_name: string
+  last_name: string
   specialty: string
   lat: number
   lng: number
   rating: number
   phone: string
 }
-
-const DUMMY_MECHANICS: Mechanic[] = [
-  { id: '1', firstName: 'Chukwu', lastName: 'Emeka', specialty: 'Engine & Transmission', lat: 6.4541, lng: 3.3947, rating: 4.5, phone: '+2348012345678' },
-  { id: '2', firstName: 'Adebayo', lastName: 'Tunde', specialty: 'Electrical Systems', lat: 6.4600, lng: 3.3890, rating: 4.8, phone: '+2348023456789' },
-  { id: '3', firstName: 'Ibrahim', lastName: 'Musa', specialty: 'Body Work & Painting', lat: 6.4700, lng: 3.4050, rating: 4.2, phone: '+2348034567890' },
-  { id: '4', firstName: 'Okafor', lastName: 'Nnamdi', specialty: 'AC & Cooling', lat: 6.4450, lng: 3.4100, rating: 3.9, phone: '+2348045678901' },
-  { id: '5', firstName: 'Balogun', lastName: 'Segun', specialty: 'Brake & Suspension', lat: 6.4800, lng: 3.3800, rating: 4.7, phone: '+2348056789012' },
-  { id: '6', firstName: 'Eze', lastName: 'Chidera', specialty: 'Engine & Transmission', lat: 6.4520, lng: 3.3960, rating: 4.0, phone: '+2348067890123' },
-  { id: '7', firstName: 'Yusuf', lastName: 'Aliyu', specialty: 'Diagnostics & Tuning', lat: 6.4650, lng: 3.3920, rating: 4.6, phone: '+2348078901234' },
-  { id: '8', firstName: 'Okeke', lastName: 'Ifeanyi', specialty: 'Electrical Systems', lat: 6.4380, lng: 3.4200, rating: 3.8, phone: '+2348089012345' },
-]
 
 function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   const R = 6371
@@ -52,6 +42,8 @@ function Stars({ rating }: { rating: number }) {
 type SortBy = 'distance' | 'rating'
 
 export default function FindMechanicModal({ onClose }: { onClose: () => void }) {
+  const [mechanics, setMechanics] = useState<Mechanic[]>([])
+  const [loadingMechanics, setLoadingMechanics] = useState(true)
   const [userLat, setUserLat] = useState<number | null>(null)
   const [userLng, setUserLng] = useState<number | null>(null)
   const [locating, setLocating] = useState(true)
@@ -59,6 +51,17 @@ export default function FindMechanicModal({ onClose }: { onClose: () => void }) 
   const [search, setSearch] = useState('')
   const [sortBy, setSortBy] = useState<SortBy>('distance')
   const [minRating, setMinRating] = useState(0)
+
+  useEffect(() => {
+    async function fetchMechanics() {
+      const { data, error } = await supabase.from('mechanic').select('*')
+      if (!error && data) {
+        setMechanics(data as Mechanic[])
+      }
+      setLoadingMechanics(false)
+    }
+    fetchMechanics()
+  }, [])
 
   useEffect(() => {
     if (!navigator.geolocation) {
@@ -83,7 +86,7 @@ export default function FindMechanicModal({ onClose }: { onClose: () => void }) 
     )
   }, [])
 
-  const enriched = DUMMY_MECHANICS.map(m => ({
+  const enriched = mechanics.map(m => ({
     ...m,
     distanceKm: userLat != null && userLng != null ? haversineKm(userLat, userLng, m.lat, m.lng) : 0,
   }))
@@ -93,8 +96,8 @@ export default function FindMechanicModal({ onClose }: { onClose: () => void }) 
       const q = search.toLowerCase()
       const matchesSearch =
         !q ||
-        `${m.firstName} ${m.lastName}`.toLowerCase().includes(q) ||
-        m.specialty.toLowerCase().includes(q)
+        `${m.first_name} ${m.last_name}`.toLowerCase().includes(q) ||
+        (m.specialty && m.specialty.toLowerCase().includes(q))
       const matchesRating = m.rating >= minRating
       return matchesSearch && matchesRating
     })
@@ -162,38 +165,44 @@ export default function FindMechanicModal({ onClose }: { onClose: () => void }) 
 
       {/* Results */}
       <div className="space-y-2 max-h-[45vh] overflow-y-auto pr-1">
-        {filtered.length === 0 && (
-          <p className="text-xs text-gray-400 text-center py-6">No mechanics match your search.</p>
-        )}
-        {filtered.map(m => (
-          <div key={m.id} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50">
-            <div
-              className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs shrink-0"
-              style={{ background: 'rgba(232,160,32,0.12)', color: '#b8760c', fontFamily: 'Syne, sans-serif' }}
-            >
-              {m.firstName[0]}{m.lastName[0]}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-sm text-gray-900 truncate" style={{ fontFamily: 'Syne, sans-serif' }}>
-                {m.firstName} {m.lastName}
-              </p>
-              <p className="text-[0.65rem] text-gray-400">{m.specialty}</p>
-              <div className="flex items-center gap-2 mt-0.5">
-                <Stars rating={m.rating} />
-                <span className="flex items-center gap-0.5 text-[0.65rem] text-gray-400">
-                  <MapPin size={10} /> {m.distanceKm.toFixed(1)} km
-                </span>
-              </div>
-            </div>
-            <a
-              href={`tel:${m.phone}`}
-              className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-colors"
-              style={{ background: 'rgba(34,197,94,0.1)' }}
-            >
-              <Phone size={16} className="text-green-600" />
-            </a>
+        {loadingMechanics ? (
+          <div className="flex flex-col items-center justify-center py-10 gap-2">
+            <Loader2 size={24} className="animate-spin text-amber-500" />
+            <p className="text-sm text-gray-500">Finding mechanics nearby...</p>
           </div>
-        ))}
+        ) : filtered.length === 0 ? (
+          <p className="text-xs text-gray-400 text-center py-6">No mechanics match your search.</p>
+        ) : (
+          filtered.map(m => (
+            <div key={m.id} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50">
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs shrink-0 uppercase"
+                style={{ background: 'rgba(232,160,32,0.12)', color: '#b8760c', fontFamily: 'Syne, sans-serif' }}
+              >
+                {m.first_name?.[0] || ''}{m.last_name?.[0] || ''}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-sm text-gray-900 truncate" style={{ fontFamily: 'Syne, sans-serif' }}>
+                  {m.first_name} {m.last_name}
+                </p>
+                <p className="text-[0.65rem] text-gray-400">{m.specialty}</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <Stars rating={m.rating || 0} />
+                  <span className="flex items-center gap-0.5 text-[0.65rem] text-gray-400">
+                    <MapPin size={10} /> {m.distanceKm.toFixed(1)} km
+                  </span>
+                </div>
+              </div>
+              <a
+                href={`tel:${m.phone}`}
+                className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-colors"
+                style={{ background: 'rgba(34,197,94,0.1)' }}
+              >
+                <Phone size={16} className="text-green-600" />
+              </a>
+            </div>
+          ))
+        )}
       </div>
     </ModalOverlay>
   )
