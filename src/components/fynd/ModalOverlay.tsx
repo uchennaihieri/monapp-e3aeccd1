@@ -28,11 +28,12 @@ export function CloseBtn({ onClick }: { onClick: () => void }) {
   )
 }
 
-export function AmberBtn({ children, onClick, icon }: { children: React.ReactNode; onClick: () => void; icon?: React.ReactNode }) {
+export function AmberBtn({ children, onClick, icon, disabled }: { children: React.ReactNode; onClick: () => void; icon?: React.ReactNode; disabled?: boolean }) {
   return (
     <button
-      onClick={onClick}
-      className="w-full py-3.5 rounded-xl text-sm font-bold text-black cursor-pointer hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
+      className={`w-full py-3.5 rounded-xl text-sm font-bold text-black cursor-pointer transition-opacity flex items-center justify-center gap-2 ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'}`}
       style={{ background: 'var(--amber)' }}
     >
       {icon}

@@ -1,37 +1,27 @@
 import { useState } from 'react'
-import { Star, Wrench, Calendar, Banknote, User, Car, ChevronRight } from 'lucide-react'
+import { Star, Wrench, Calendar, Banknote, User, Car, ChevronRight, Loader2 } from 'lucide-react'
 import { ModalOverlay, CloseBtn, AmberBtn } from './ModalOverlay'
 import type { Vehicle } from './VehicleDetailModal'
+import { supabase } from '@/util/supabase'
+
+interface MechanicRef {
+  first_name: string
+  last_name: string
+  business_name?: string
+}
 
 interface RepairRecord {
   id: string
-  mechanicName: string
-  vehicleId: string
-  repairType: string
+  vehicle_id: string
+  mechanic_id: string
+  repair_type: string
   description: string
-  amountPaid: number
+  amount_paid: number
   date: string
   status: 'completed' | 'in-progress'
   rating: number | null
-}
-
-// Dummy repairs keyed to vehicle ids — in production this comes from DB
-function getDummyRepairs(vehicles: Vehicle[]): RepairRecord[] {
-  const records: RepairRecord[] = []
-  const repairs = [
-    { repairType: 'Engine Overhaul', description: 'Complete engine rebuild with new gaskets and timing belt', mechanicName: 'Chukwu Emeka', amountPaid: 185000, date: '2026-03-28', rating: null },
-    { repairType: 'Electrical Rewiring', description: 'Dashboard wiring harness replacement and alternator fix', mechanicName: 'Adebayo Tunde', amountPaid: 75000, date: '2026-03-15', rating: null },
-    { repairType: 'Body Respray', description: 'Full body respray — pearl white with clear coat', mechanicName: 'Ibrahim Musa', amountPaid: 320000, date: '2026-02-20', rating: 4 },
-    { repairType: 'Brake Pad Replacement', description: 'Front and rear brake pads with rotor resurfacing', mechanicName: 'Balogun Segun', amountPaid: 45000, date: '2026-01-10', rating: 5 },
-  ]
-  vehicles.forEach((v, vi) => {
-    // Give each vehicle 2 repairs from the pool
-    const slice = repairs.slice((vi * 2) % repairs.length, (vi * 2) % repairs.length + 2)
-    slice.forEach((r, ri) => {
-      records.push({ id: `${v.id}-r${ri}`, vehicleId: v.id, status: 'completed', ...r })
-    })
-  })
-  return records
+  comment?: string | null
+  mechanic?: MechanicRef
 }
 
 function StarRating({ value, onChange }: { value: number; onChange: (v: number) => void }) {
@@ -65,25 +55,47 @@ interface Props {
 export default function RateMechanicModal({ onClose, vehicles }: Props) {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null)
   const [repairs, setRepairs] = useState<RepairRecord[]>([])
+  const [loadingRepairs, setLoadingRepairs] = useState(false)
   const [selectedRepair, setSelectedRepair] = useState<RepairRecord | null>(null)
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState('')
+  const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
   const fmt = (n: number) => '₦' + n.toLocaleString()
 
   function pickVehicle(v: Vehicle) {
     setSelectedVehicle(v)
-    const all = getDummyRepairs(vehicles)
-    setRepairs(all.filter(r => r.vehicleId === v.id))
     setSelectedRepair(null)
     setRating(0)
     setComment('')
+    setLoadingRepairs(true)
+
+    supabase
+      .from('repair')
+      .select('*, mechanic:mechanic_id (first_name, last_name, business_name)')
+      .eq('vehicle_id', v.id)
+      .then(({ data, error }) => {
+        if (!error && data) {
+          setRepairs(data as RepairRecord[])
+        }
+        setLoadingRepairs(false)
+      })
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!selectedRepair || rating === 0) return
-    setSubmitted(true)
+    setSubmitting(true)
+    
+    const { error } = await supabase
+      .from('repair')
+      .update({ rating, comment })
+      .eq('id', selectedRepair.id)
+      
+    setSubmitting(false)
+    if (!error) {
+      setSubmitted(true)
+    }
   }
 
   // ── Success screen ──
@@ -104,7 +116,11 @@ export default function RateMechanicModal({ onClose, vehicles }: Props) {
 
   // ── Rate selected repair ──
   if (selectedRepair) {
-    const v = vehicles.find(x => x.id === selectedRepair.vehicleId)
+    const v = vehicles.find(x => x.id === selectedRepair.vehicle_id)
+    const mechName = selectedRepair.mechanic 
+      ? (selectedRepair.mechanic.business_name || `${selectedRepair.mechanic.first_name} ${selectedRepair.mechanic.last_name}`)
+      : 'Unknown Mechanic'
+      
     return (
       <ModalOverlay onClose={onClose}>
         <div className="flex items-center justify-between mb-4">
@@ -115,14 +131,14 @@ export default function RateMechanicModal({ onClose, vehicles }: Props) {
         <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 mb-4 space-y-2">
           <div className="flex items-center gap-2 text-sm">
             <Wrench size={14} className="text-amber-500" />
-            <span className="font-semibold text-gray-900">{selectedRepair.repairType}</span>
+            <span className="font-semibold text-gray-900">{selectedRepair.repair_type}</span>
           </div>
           <p className="text-xs text-gray-400">{selectedRepair.description}</p>
           <div className="grid grid-cols-2 gap-2 mt-2">
-            <div className="flex items-center gap-1.5 text-xs text-gray-500"><User size={12} /> {selectedRepair.mechanicName}</div>
+            <div className="flex items-center gap-1.5 text-xs text-gray-500"><User size={12} /> {mechName}</div>
             <div className="flex items-center gap-1.5 text-xs text-gray-500"><Car size={12} /> {v?.name} {v?.year}</div>
             <div className="flex items-center gap-1.5 text-xs text-gray-500"><Calendar size={12} /> {selectedRepair.date}</div>
-            <div className="flex items-center gap-1.5 text-xs text-gray-500"><Banknote size={12} /> {fmt(selectedRepair.amountPaid)}</div>
+            <div className="flex items-center gap-1.5 text-xs text-gray-500"><Banknote size={12} /> {fmt(selectedRepair.amount_paid)}</div>
           </div>
           <p className="text-[0.65rem] text-gray-300 mt-1">Plate: {v?.plate}</p>
         </div>
@@ -135,7 +151,12 @@ export default function RateMechanicModal({ onClose, vehicles }: Props) {
                 <Star key={i} size={22} className={i <= selectedRepair.rating! ? 'text-amber-500 fill-amber-500' : 'text-gray-200'} />
               ))}
             </div>
-            <AmberBtn onClick={() => { setSelectedRepair(null); setRating(0) }}>Back to repairs</AmberBtn>
+            {selectedRepair.comment && (
+              <p className="text-xs text-gray-400 mt-3 italic">"{selectedRepair.comment}"</p>
+            )}
+            <div className="mt-4">
+              <AmberBtn onClick={() => { setSelectedRepair(null); setRating(0) }}>Back to repairs</AmberBtn>
+            </div>
           </div>
         ) : (
           <>
@@ -150,7 +171,9 @@ export default function RateMechanicModal({ onClose, vehicles }: Props) {
               rows={3}
               className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-gray-50 outline-none focus:border-gray-300 resize-none mb-4"
             />
-            <AmberBtn onClick={handleSubmit}>Submit Rating</AmberBtn>
+            <AmberBtn onClick={handleSubmit} disabled={submitting}>
+              {submitting ? <Loader2 size={18} className="animate-spin mx-auto text-amber-900" /> : 'Submit Rating'}
+            </AmberBtn>
           </>
         )}
       </ModalOverlay>
@@ -174,30 +197,39 @@ export default function RateMechanicModal({ onClose, vehicles }: Props) {
         </button>
 
         <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-1">
-          {repairs.length === 0 && (
+          {loadingRepairs ? (
+            <div className="flex flex-col items-center justify-center py-10 gap-2">
+              <Loader2 size={24} className="animate-spin text-amber-500" />
+              <p className="text-sm text-gray-500">Fetching repair records...</p>
+            </div>
+          ) : repairs.length === 0 ? (
             <p className="text-xs text-gray-400 text-center py-6">No repair records for this vehicle.</p>
+          ) : (
+            repairs.map(r => {
+              const mechName = r.mechanic ? (r.mechanic.business_name || `${r.mechanic.first_name} ${r.mechanic.last_name}`) : 'Unknown Mechanic';
+              return (
+                <button
+                  key={r.id}
+                  onClick={() => { setSelectedRepair(r); setRating(0); setComment('') }}
+                  className="w-full text-left p-3 rounded-xl border border-gray-100 bg-gray-50 hover:border-amber-200 transition-colors cursor-pointer block"
+                  style={{ fontFamily: 'Syne, sans-serif' }}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-bold text-sm text-gray-900">{r.repair_type}</span>
+                    {r.rating ? (
+                      <span className="flex items-center gap-0.5 text-xs text-amber-500">
+                        <Star size={10} className="fill-amber-500" /> {r.rating}/5
+                      </span>
+                    ) : (
+                      <span className="text-[0.6rem] px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 font-semibold">Unrated</span>
+                    )}
+                  </div>
+                  <p className="text-[0.7rem] text-gray-400">{mechName} · {r.date}</p>
+                  <p className="text-[0.7rem] text-gray-400">{fmt(r.amount_paid)}</p>
+                </button>
+              )
+            })
           )}
-          {repairs.map(r => (
-            <button
-              key={r.id}
-              onClick={() => { setSelectedRepair(r); setRating(0); setComment('') }}
-              className="w-full text-left p-3 rounded-xl border border-gray-100 bg-gray-50 hover:border-amber-200 transition-colors cursor-pointer block"
-              style={{ fontFamily: 'Syne, sans-serif' }}
-            >
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-bold text-sm text-gray-900">{r.repairType}</span>
-                {r.rating ? (
-                  <span className="flex items-center gap-0.5 text-xs text-amber-500">
-                    <Star size={10} className="fill-amber-500" /> {r.rating}/5
-                  </span>
-                ) : (
-                  <span className="text-[0.6rem] px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 font-semibold">Unrated</span>
-                )}
-              </div>
-              <p className="text-[0.7rem] text-gray-400">{r.mechanicName} · {r.date}</p>
-              <p className="text-[0.7rem] text-gray-400">{fmt(r.amountPaid)}</p>
-            </button>
-          ))}
         </div>
       </ModalOverlay>
     )

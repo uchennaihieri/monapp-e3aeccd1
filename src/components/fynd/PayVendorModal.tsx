@@ -31,7 +31,7 @@ interface Props {
 
 export default function PayVendorModal({ onClose, vehicles, balance }: Props) {
   const [step, setStep] = useState<'input' | 'review' | 'success'>('input')
-  const [repairDate, setRepairDate] = useState('')
+ 
   const [repairNumber, setRepairNumber] = useState('')
   const [vehicleId, setVehicleId] = useState('')
   const [matchedRepair, setMatchedRepair] = useState<RepairLookup | null>(null)
@@ -40,7 +40,7 @@ export default function PayVendorModal({ onClose, vehicles, balance }: Props) {
   const fmt = (n: number) => '₦' + n.toLocaleString()
 
   function handleNext() {
-    if (!repairDate || !repairNumber.trim() || !vehicleId) {
+    if (!repairNumber.trim() || !vehicleId) {
       setError('Please fill in all fields')
       return
     }
@@ -50,7 +50,7 @@ export default function PayVendorModal({ onClose, vehicles, balance }: Props) {
       setError('Repair not found. Please check the repair number.')
       return
     }
-    setMatchedRepair({ ...found, vehicleId, date: repairDate })
+    setMatchedRepair({ ...found, vehicleId })
     setError('')
     setStep('review')
   }
@@ -154,7 +154,7 @@ export default function PayVendorModal({ onClose, vehicles, balance }: Props) {
       <p className="text-xs text-gray-400 mb-4">Enter the repair details to find and pay your vendor.</p>
 
       <div className="space-y-3 mb-4">
-        {/* Date */}
+        {/* Date
         <div>
           <label className="text-xs font-semibold text-gray-500 mb-1 block">Repair Date</label>
           <div className="relative">
@@ -166,7 +166,7 @@ export default function PayVendorModal({ onClose, vehicles, balance }: Props) {
               className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-gray-50 outline-none focus:border-gray-300 transition-colors"
             />
           </div>
-        </div>
+        </div> */}
 
         {/* Repair number */}
         <div>
