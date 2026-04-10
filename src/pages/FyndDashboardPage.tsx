@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
@@ -44,13 +44,45 @@ export default function FyndDashboardPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
   const [vehiclesLoading, setVehiclesLoading] = useState(true)
 
-
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [profileReady, setProfileReady] = useState(false)
 
   const [showAccountModal, setShowAccountModal] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
+
+  // Track modal history for back button behavior
+  const prevModalOpen = useRef(false)
+  const isAnyModalOpen = showAccountModal || showDeposit || showActivateConfirm || 
+                         showReportMissing || showFindMechanic || showRateMechanic || 
+                         showPayVendor || !!showVehicleDetail || showAddVehicle
+
+  useEffect(() => {
+    if (isAnyModalOpen && !prevModalOpen.current) {
+      window.history.pushState({ modalOpen: true }, '')
+    } else if (!isAnyModalOpen && prevModalOpen.current) {
+      if (window.history.state?.modalOpen) {
+        window.history.go(-1)
+      }
+    }
+    prevModalOpen.current = isAnyModalOpen
+  }, [isAnyModalOpen])
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setShowAccountModal(false)
+      setShowDeposit(false)
+      setShowActivateConfirm(false)
+      setShowReportMissing(false)
+      setShowFindMechanic(false)
+      setShowRateMechanic(false)
+      setShowPayVendor(false)
+      setShowVehicleDetail(null)
+      setShowAddVehicle(false)
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
 
 
   useEffect(() => {
@@ -168,7 +200,9 @@ export default function FyndDashboardPage() {
     await supabase.auth.signOut()
     setLoggingOut(false)
     setShowAccountModal(false)
-    navigate('/fynd', { replace: true })
+    setTimeout(() => {
+      navigate('/fynd', { replace: true })
+    }, 10)
   }
 
   const canActivate = balance >= 10000
