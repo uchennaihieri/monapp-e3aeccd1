@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   ShieldCheck, Wrench, Star, Plus, ArrowDownToLine,
-  Clock, CalendarDays, Banknote, ChevronRight, PlusCircle, LogOut, User, AlertTriangle
+  Clock, CalendarDays, Banknote, ChevronRight, PlusCircle, LogOut, User, AlertTriangle, Loader2
 } from 'lucide-react'
 import { supabase } from '@/util/supabase'
 import { ModalOverlay, CloseBtn, AmberBtn } from '../components/fynd/ModalOverlay'
@@ -26,7 +26,12 @@ const fmt = (d: Date) => d.toLocaleDateString('en-NG', { day: 'numeric', month: 
 export default function FyndDashboardPage() {
   const navigate = useNavigate()
   const [balance, setBalance] = useState(0)
+  const [securityBalance, setSecurityBalance] = useState(0)
+  const [bank, setBank] = useState('')
+  const [accountNumber, setAccountNumber] = useState('')
+  const [accountName, setAccountName] = useState('')
   const [fyndActive, setFyndActive] = useState(false)
+  const [isActivating, setIsActivating] = useState(false)
   const [autoRenew, setAutoRenew] = useState(true)
   const [showDeposit, setShowDeposit] = useState(false)
   const [showActivateConfirm, setShowActivateConfirm] = useState(false)
@@ -36,45 +41,88 @@ export default function FyndDashboardPage() {
   const [showPayVendor, setShowPayVendor] = useState(false)
   const [showVehicleDetail, setShowVehicleDetail] = useState<Vehicle | null>(null)
   const [showAddVehicle, setShowAddVehicle] = useState(false)
-const [vehicles, setVehicles] = useState<Vehicle[]>([])
-const [vehiclesLoading, setVehiclesLoading] = useState(true)
+  const [vehicles, setVehicles] = useState<Vehicle[]>([])
+  const [vehiclesLoading, setVehiclesLoading] = useState(true)
 
 
-    const [firstName, setFirstName]   = useState('')
-  const [lastName, setLastName]     = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [profileReady, setProfileReady] = useState(false)
 
-    const [showAccountModal, setShowAccountModal] = useState(false)
-  const [loggingOut, setLoggingOut]             = useState(false)
+  const [showAccountModal, setShowAccountModal] = useState(false)
+  const [loggingOut, setLoggingOut] = useState(false)
 
 
-useEffect(() => {
-   
+  useEffect(() => {
+
     load()
     loadVehicles()
   }, [navigate])
 
- const load = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) { navigate('/fynd', { replace: true }); return }
+  const load = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { navigate('/fynd', { replace: true }); return }
 
-      // person table: user_id PK, first_name, last_name
-      const { data: person } = await supabase
-        .from('person')
-        .select('first_name, last_name')
-        .eq('user_id', session.user.id)
-        .maybeSingle()
+    // person table: user_id PK, first_name, last_name
+    const { data: person } = await supabase
+      .from('person')
+      .select('first_name, last_name')
+      .eq('user_id', session.user.id)
+      .maybeSingle()
 
-      if (person) {
-        setFirstName(person.first_name ?? '')
-        setLastName(person.last_name ?? '')
-      } else {
-        // Not yet registered — fall back to email prefix
-        const prefix = session.user.email?.split('@')[0] ?? ''
-        setFirstName(prefix)
-      }
-      setProfileReady(true)
+    if (person) {
+      setFirstName(person.first_name ?? '')
+      setLastName(person.last_name ?? '')
+    } else {
+      // Not yet registered — fall back to email prefix
+      const prefix = session.user.email?.split('@')[0] ?? ''
+      setFirstName(prefix)
     }
+
+    await Promise.all([
+      loadAccount(),
+      loadFyndStatus()
+    ])
+
+    setProfileReady(true)
+  }
+
+  const loadFyndStatus = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+
+    // Assumes there is a status='active' criteria based on "an active fynd"
+    const { data: fynds, error } = await supabase
+      .from('fynd')
+      .select('id, status')
+      .eq('subscriber', session.user.id)
+      .eq('status', 'active')
+
+    if (!error && fynds && fynds.length > 0) {
+      setFyndActive(true)
+    } else {
+      setFyndActive(false)
+    }
+  }
+
+  const loadAccount = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+
+    const { data: account } = await supabase
+      .from('account')
+      .select('account_balance, security_balance, bank, account_number, account_name')
+      .eq('user_id', session.user.id)
+      .maybeSingle()
+
+    if (account) {
+      setBalance(account.account_balance || 0)
+      setSecurityBalance(account.security_balance || 0)
+      setBank(account.bank || '')
+      setAccountNumber(account.account_number || '')
+      setAccountName(account.account_name || '')
+    }
+  }
 
   const loadVehicles = async () => {
     const { data: { session } } = await supabase.auth.getSession()
@@ -106,7 +154,7 @@ useEffect(() => {
     }
     setVehiclesLoading(false)
   }
-  
+
   // Initials: first letter of first name + first letter of last name
   const initials = [firstName, lastName]
     .map(n => n.trim().charAt(0).toUpperCase())
@@ -130,17 +178,42 @@ useEffect(() => {
     setShowActivateConfirm(true)
   }
 
-  function confirmActivation() {
-    setFyndActive(true)
-    setShowActivateConfirm(false)
+  async function confirmActivation() {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+
+    setIsActivating(true)
+    try {
+      await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/activateFynd`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({
+          confirm: true,
+          auto_renew: autoRenew
+        })
+      });
+      
+      await Promise.all([
+        loadAccount(),
+        loadFyndStatus()
+      ])
+    } catch (error) {
+      console.error('Error activating fynd:', error)
+    } finally {
+      setIsActivating(false)
+      setShowActivateConfirm(false)
+    }
   }
 
-  function handleMoneySent() {
-    setBalance(prev => prev + 10000)
+  async function handleMoneySent() {
+    await loadAccount()
     setShowDeposit(false)
   }
 
-  
+
 
   // function addVehicle(data: { name: string; year: string; vin: string; plate: string; location: string; photos: Vehicle['photos'] }) {
   //   const id = String(Date.now())
@@ -149,21 +222,21 @@ useEffect(() => {
   // }
 
   function addVehicle(vehicle: Vehicle) {
-  setVehicles(prev => [...prev, vehicle])
-  setShowAddVehicle(false)
-}
-
-async function changeVehicleStatus(vehicleId: string, status: VehicleStatus) {
-  const { error } = await supabase
-    .from('vehicle')
-    .update({ status })
-    .eq('id', vehicleId)
-
-  if (!error) {
-    setVehicles(prev => prev.map(v => v.id === vehicleId ? { ...v, status } : v))
+    setVehicles(prev => [...prev, vehicle])
+    setShowAddVehicle(false)
   }
-  setShowVehicleDetail(null)
-}
+
+  async function changeVehicleStatus(vehicleId: string, status: VehicleStatus) {
+    const { error } = await supabase
+      .from('vehicle')
+      .update({ status })
+      .eq('id', vehicleId)
+
+    if (!error) {
+      setVehicles(prev => prev.map(v => v.id === vehicleId ? { ...v, status } : v))
+    }
+    setShowVehicleDetail(null)
+  }
 
   function reportMissing(vehicleId: string) {
     changeVehicleStatus(vehicleId, 'missing')
@@ -178,7 +251,7 @@ async function changeVehicleStatus(vehicleId: string, status: VehicleStatus) {
         {/* <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold bg-amber-50 text-amber-600" style={{ fontFamily: 'Syne, sans-serif' }}>
           JD
         </div> */}
-          <button
+        <button
           onClick={() => setShowAccountModal(true)}
           className="w-9 h-9 rounded-full flex items-center justify-center font-bold border-none cursor-pointer transition-all hover:opacity-80 active:scale-95"
           style={{
@@ -219,20 +292,19 @@ async function changeVehicleStatus(vehicleId: string, status: VehicleStatus) {
 
             <div className="flex items-baseline gap-1 mb-1">
               <span className="font-extrabold" style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.75rem', color: 'var(--amber)' }}>
-                ₦{balance.toLocaleString()}
+                ₦{(balance - securityBalance).toLocaleString()}
               </span>
             </div>
-            <p className="text-[0.7rem] text-white/35 mb-4">Security Balance · Refundable</p>
+            <p className="text-[0.7rem] text-white/35 mb-4">Security Balance · ₦{securityBalance.toLocaleString()}</p>
 
             {!fyndActive && (
               <button
                 onClick={handleActivateClick}
                 disabled={!canActivate}
-                className={`w-full py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${
-                  canActivate
-                    ? 'text-black cursor-pointer hover:opacity-90'
-                    : 'bg-white/10 text-white/30 cursor-not-allowed'
-                }`}
+                className={`w-full py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${canActivate
+                  ? 'text-black cursor-pointer hover:opacity-90'
+                  : 'bg-white/10 text-white/30 cursor-not-allowed'
+                  }`}
                 style={canActivate ? { background: 'var(--amber)' } : undefined}
               >
                 <ShieldCheck size={16} />
@@ -272,11 +344,10 @@ async function changeVehicleStatus(vehicleId: string, status: VehicleStatus) {
                   key={label}
                   disabled={locked}
                   onClick={() => action?.()}
-                  className={`flex flex-col items-start p-3 rounded-xl text-left transition-all border ${
-                    locked
-                      ? 'bg-gray-50 border-gray-100 cursor-not-allowed opacity-40'
-                      : 'bg-white border-gray-200 cursor-pointer hover:border-gray-300 hover:shadow-sm'
-                  }`}
+                  className={`flex flex-col items-start p-3 rounded-xl text-left transition-all border ${locked
+                    ? 'bg-gray-50 border-gray-100 cursor-not-allowed opacity-40'
+                    : 'bg-white border-gray-200 cursor-pointer hover:border-gray-300 hover:shadow-sm'
+                    }`}
                 >
                   <Icon size={18} className={`mb-1.5 ${locked ? 'text-gray-300' : 'text-gray-700'}`} />
                   <span className="text-xs font-bold text-gray-900" style={{ fontFamily: 'Syne, sans-serif' }}>{label}</span>
@@ -315,28 +386,28 @@ async function changeVehicleStatus(vehicleId: string, status: VehicleStatus) {
           </div> */}
 
           <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
-  {vehiclesLoading ? (
-    <p className="text-xs text-gray-300 py-4 px-1">Loading vehicles…</p>
-  ) : vehicles.length === 0 ? (
-    <p className="text-xs text-gray-300 py-4 px-1">No vehicles yet. Tap Add to get started.</p>
-  ) : vehicles.map(v => {
-    const s = STATUS_COLORS[v.status]
-    return (
-      <button
-        key={v.id}
-        onClick={() => setShowVehicleDetail(v)}
-        className="min-w-[200px] p-4 rounded-xl bg-gray-50 border border-gray-100 text-left cursor-pointer hover:border-gray-200 hover:shadow-sm transition-all shrink-0"
-      >
-        <div className="flex items-center justify-between mb-2">
-          <span className={`text-[0.6rem] font-bold px-2 py-0.5 rounded-full ${s.bg} ${s.text}`}>{s.label}</span>
-          <ChevronRight size={14} className="text-gray-300" />
-        </div>
-        <p className="font-bold text-sm text-gray-900" style={{ fontFamily: 'Syne, sans-serif' }}>{v.name} {v.year}</p>
-        <p className="text-xs text-gray-400">{v.plate} · {v.location}</p>
-      </button>
-    )
-  })}
-</div>
+            {vehiclesLoading ? (
+              <p className="text-xs text-gray-300 py-4 px-1">Loading vehicles…</p>
+            ) : vehicles.length === 0 ? (
+              <p className="text-xs text-gray-300 py-4 px-1">No vehicles yet. Tap Add to get started.</p>
+            ) : vehicles.map(v => {
+              const s = STATUS_COLORS[v.status]
+              return (
+                <button
+                  key={v.id}
+                  onClick={() => setShowVehicleDetail(v)}
+                  className="min-w-[200px] p-4 rounded-xl bg-gray-50 border border-gray-100 text-left cursor-pointer hover:border-gray-200 hover:shadow-sm transition-all shrink-0"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={`text-[0.6rem] font-bold px-2 py-0.5 rounded-full ${s.bg} ${s.text}`}>{s.label}</span>
+                    <ChevronRight size={14} className="text-gray-300" />
+                  </div>
+                  <p className="font-bold text-sm text-gray-900" style={{ fontFamily: 'Syne, sans-serif' }}>{v.name} {v.year}</p>
+                  <p className="text-xs text-gray-400">{v.plate} · {v.location}</p>
+                </button>
+              )
+            })}
+          </div>
         </div>
       </div>
 
@@ -406,7 +477,7 @@ async function changeVehicleStatus(vehicleId: string, status: VehicleStatus) {
               <CloseBtn onClick={() => setShowDeposit(false)} />
             </div>
             <div className="rounded-xl bg-gray-50 border border-gray-100 p-4 mb-4 space-y-3">
-              {[['Bank', 'Wema Bank'], ['Account Number', '8230145679'], ['Account Name', 'Monapp Technologies Ltd']].map(([l, v]) => (
+              {[['Bank', bank || 'Loading...'], ['Account Number', accountNumber || 'Loading...'], ['Account Name', accountName || 'Loading...']].map(([l, v]) => (
                 <div key={l} className="flex justify-between text-sm">
                   <span className="text-gray-400">{l}</span>
                   <span className="font-bold text-gray-900">{v}</span>
@@ -447,7 +518,13 @@ async function changeVehicleStatus(vehicleId: string, status: VehicleStatus) {
               </div>
             </label>
             <p className="text-xs text-gray-400 mb-5 leading-relaxed">₦10,000 will be held as a refundable security deposit for 12 months. You can withdraw after maturity.</p>
-            <AmberBtn onClick={confirmActivation} icon={<ShieldCheck size={16} />}>Confirm & Activate</AmberBtn>
+            <AmberBtn 
+              onClick={confirmActivation} 
+              icon={isActivating ? <Loader2 size={16} className="animate-spin" /> : <ShieldCheck size={16} />}
+              disabled={isActivating}
+            >
+              {isActivating ? 'Activating...' : 'Confirm & Activate'}
+            </AmberBtn>
           </ModalOverlay>
         )}
       </AnimatePresence>
