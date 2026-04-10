@@ -406,14 +406,14 @@ async function changeVehicleStatus(vehicleId: string, status: VehicleStatus) {
               <CloseBtn onClick={() => setShowDeposit(false)} />
             </div>
             <div className="rounded-xl bg-gray-50 border border-gray-100 p-4 mb-4 space-y-3">
-              {[['Amount', '₦10,000'], ['Bank', 'Wema Bank'], ['Account Number', '8230145679'], ['Account Name', 'Monapp Technologies Ltd']].map(([l, v]) => (
+              {[['Bank', 'Wema Bank'], ['Account Number', '8230145679'], ['Account Name', 'Monapp Technologies Ltd']].map(([l, v]) => (
                 <div key={l} className="flex justify-between text-sm">
                   <span className="text-gray-400">{l}</span>
                   <span className="font-bold text-gray-900">{v}</span>
                 </div>
               ))}
             </div>
-            <p className="text-xs text-gray-400 mb-5 leading-relaxed">Transfer the exact amount above. Your balance will be updated once the payment is confirmed.</p>
+            <p className="text-xs text-gray-400 mb-5 leading-relaxed">Transfer your deposit to the above account. Your balance will be updated once the payment is confirmed.</p>
             <AmberBtn onClick={handleMoneySent}>Money Sent</AmberBtn>
           </ModalOverlay>
         )}
