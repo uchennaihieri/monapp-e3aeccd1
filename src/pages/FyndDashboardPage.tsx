@@ -59,10 +59,12 @@ export default function FyndDashboardPage() {
 
   useEffect(() => {
     if (isAnyModalOpen && !prevModalOpen.current) {
-      window.history.pushState({ modalOpen: true }, '')
+      // Mobile browsers heavily rely on actual URI modifications (like hashes) to register hardware back-button history ticks.
+      window.history.pushState(null, '', window.location.pathname + window.location.search + '#modal')
     } else if (!isAnyModalOpen && prevModalOpen.current) {
-      if (window.history.state?.modalOpen) {
-        window.history.go(-1)
+      // If modal was closed programmatically (via UI click), silently pop the hash
+      if (window.location.hash === '#modal') {
+        window.history.back()
       }
     }
     prevModalOpen.current = isAnyModalOpen
@@ -70,6 +72,7 @@ export default function FyndDashboardPage() {
 
   useEffect(() => {
     const handlePopState = () => {
+      // Hardware back button drops the hash, close the modals
       setShowAccountModal(false)
       setShowDeposit(false)
       setShowActivateConfirm(false)
